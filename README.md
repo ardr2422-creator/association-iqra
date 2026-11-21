@@ -32,6 +32,24 @@ Sur téléphone, le menu passe en haut :
 | 7 | Calendrier | à venir |
 | 8 | Rappels par email | à venir |
 
+## Projet en ligne
+
+- **Vercel** : projet `iqra-compta`, relié à ce dépôt (chaque envoi sur la branche
+  de production redéploie). Exécution à Paris, versions d'essai désactivées.
+- **Supabase** : projet `iqra-compta`, région Paris, relié à Vercel par l'onglet
+  *Storage* (les adresses de connexion sont posées automatiquement, pour la
+  production uniquement).
+- **Reste à faire pour pouvoir se connecter** :
+  1. Supabase → *Authentication → Users → Add user* : créer le compte de la
+     trésorière (cocher *Auto Confirm User*), puis copier son *User UID*.
+  2. Vercel → *Settings → Environment Variables* : remplacer la valeur provisoire
+     de `AUTH_ALLOWED_USER_ID` par cet UID, puis *Deployments → Redeploy*.
+  3. Supabase → *Authentication → Sign In / Providers* : décocher
+     *Allow new users to sign up*.
+
+  Tant que l'étape 2 n'est pas faite, la page de connexion s'affiche mais
+  personne ne peut entrer.
+
 ## Mettre en ligne (Vercel + Supabase)
 
 Vous n'avez rien à installer sur votre ordinateur : tout se fait dans le navigateur.

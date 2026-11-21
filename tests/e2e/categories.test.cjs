@@ -24,7 +24,7 @@ const check = (name, ok, extra = '') => { console.log(`${ok ? 'PASS' : 'FAIL'}  
   await page.getByLabel('Adresse email').fill('tresorier@iqra.test');
   await page.getByLabel('Mot de passe').fill('correct horse');
   await page.getByRole('button', { name: 'Se connecter' }).click();
-  await page.waitForURL('**/categories');
+  await page.waitForURL((url) => url.pathname === '/categories');
   const income = page.getByRole('region', { name: 'Entrées' }).or(page.locator('section').filter({ has: page.getByRole('heading', { name: 'Entrées' }) })).first();
   const expense = page.locator('section').filter({ has: page.getByRole('heading', { name: 'Sorties', exact: true }) }).first();
   await income.getByText('6 catégories').waitFor();

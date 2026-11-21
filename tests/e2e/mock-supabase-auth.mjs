@@ -12,14 +12,15 @@ const USERS = {
   'tresorier@iqra.test': { id: '11111111-1111-4111-8111-111111111111', password: 'correct horse' },
   'intrus@iqra.test': { id: '22222222-2222-4222-8222-222222222222', password: 'intrus-pass' },
 }
-export const state = { nextExpiresIn: 3600, calls: [] }
-const refreshTokens = new Map() // refresh_token -> { email, sessionId }
+// loginAgeSeconds : antidate l'heure de connexion des prochaines sessions (test de la durée maximale).
+export const state = { nextExpiresIn: 3600, calls: [], loginAgeSeconds: 0 }
+const refreshTokens = new Map() // refresh_token -> { email, sessionId, loginAt }
 const revokedSessions = new Set()
 
-function sign(user, email, expiresIn, sessionId) {
+function sign(user, email, expiresIn, sessionId, loginAt) {
   const now = Math.floor(Date.now() / 1000)
   const head = b64({ alg: 'ES256', typ: 'JWT', kid })
-  const body = b64({ iss: 'mock', sub: user.id, aud: 'authenticated', exp: now + expiresIn, iat: now, email, role: 'authenticated', aal: 'aal1', session_id: sessionId, is_anonymous: false })
+  const body = b64({ iss: 'mock', sub: user.id, aud: 'authenticated', exp: now + expiresIn, iat: now, email, role: 'authenticated', aal: 'aal1', amr: [{ method: 'password', timestamp: loginAt }], session_id: sessionId, is_anonymous: false })
   const sig = crypto.sign('sha256', Buffer.from(`${head}.${body}`), { key: privateKey, dsaEncoding: 'ieee-p1363' }).toString('base64url')
   return `${head}.${body}.${sig}`
 }
@@ -34,14 +35,14 @@ function verify(token) {
   } catch { return null }
 }
 const userObject = (id, email) => ({ id, aud: 'authenticated', role: 'authenticated', email, app_metadata: {}, user_metadata: {}, created_at: new Date().toISOString() })
-function session(email, sessionId = crypto.randomUUID()) {
+function session(email, sessionId = crypto.randomUUID(), loginAt = Math.floor(Date.now() / 1000) - state.loginAgeSeconds) {
   const user = USERS[email]
   const expiresIn = state.nextExpiresIn
   state.nextExpiresIn = 3600
   const refresh_token = crypto.randomBytes(8).toString('hex')
-  refreshTokens.set(refresh_token, { email, sessionId })
+  refreshTokens.set(refresh_token, { email, sessionId, loginAt })
   return {
-    access_token: sign(user, email, expiresIn, sessionId), token_type: 'bearer', expires_in: expiresIn,
+    access_token: sign(user, email, expiresIn, sessionId, loginAt), token_type: 'bearer', expires_in: expiresIn,
     expires_at: Math.floor(Date.now() / 1000) + expiresIn, refresh_token, user: userObject(user.id, email),
   }
 }
@@ -53,6 +54,7 @@ export const server = http.createServer((req, res) => {
     state.calls.push(`${req.method} ${url.pathname}${url.search}`)
     const json = (status, obj) => { res.writeHead(status, { 'content-type': 'application/json' }); res.end(JSON.stringify(obj)) }
     const bearer = (req.headers.authorization || '').replace(/^Bearer /i, '')
+    if (url.pathname === '/__test/login-age') { state.loginAgeSeconds = Number(url.searchParams.get('seconds') ?? 0); return json(200, { loginAgeSeconds: state.loginAgeSeconds }) }
     if (url.pathname === '/auth/v1/.well-known/jwks.json') return json(200, { keys: [jwk] })
     if (url.pathname === '/auth/v1/token' && url.searchParams.get('grant_type') === 'password') {
       const { email, password } = JSON.parse(raw || '{}')
@@ -65,7 +67,7 @@ export const server = http.createServer((req, res) => {
       const entry = refreshTokens.get(refresh_token)
       if (!entry || revokedSessions.has(entry.sessionId)) return json(400, { code: 400, error_code: 'refresh_token_not_found', msg: 'Invalid Refresh Token' })
       refreshTokens.delete(refresh_token)
-      return json(200, session(entry.email, entry.sessionId))
+      return json(200, session(entry.email, entry.sessionId, entry.loginAt))
     }
     if (url.pathname === '/auth/v1/user' && req.method === 'GET') {
       const claims = verify(bearer)

@@ -55,6 +55,17 @@ Sécurité (données confidentielles — exigence forte de l'utilisateur) :
   `src/app/(app)/categories/actions.ts`. Les lectures vont dans `src/lib/data/`.
 - Jamais de SQL construit à la main : pas de `$queryRawUnsafe`, `$executeRawUnsafe`,
   `Prisma.raw` (bloqués par ESLint). `$queryRaw` uniquement en gabarit étiqueté.
+- Jamais `mode: "insensitive"` (ni `contains` / `startsWith`) sur un texte saisi
+  sans échapper `\ % _` : Postgres l'exécute comme un motif ILIKE. Pour chercher
+  un doublon, comparer en JavaScript (`nameKey` dans `categories/actions.ts`).
+- Textes saisis : `normalize("NFC")`, refuser les caractères invisibles (voir
+  `nameSchema`).
+- Écritures concurrentes sur une même liste : transaction + verrou
+  `pg_advisory_xact_lock` (voir `saveCategory`).
+- `npm run lint` lance aussi `scripts/check-server-actions.mjs` : toute fonction
+  exportée d'un fichier `"use server"` doit commencer par `await requireUser();`.
+- Connexion à la base : toujours via `pgConnectionOptions` (`src/lib/db-connection.ts`),
+  qui impose TLS vérifié hors machine locale. Ne jamais créer un `pg.Client` nu.
 - Jamais de `dangerouslySetInnerHTML`. Aucun client Supabase dans le navigateur.
 - Chaque migration qui crée une table doit contenir
   `ALTER TABLE "…" ENABLE ROW LEVEL SECURITY;` — `npm run db:check` (lancé par

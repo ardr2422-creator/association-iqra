@@ -3,7 +3,7 @@ import { cache } from "react";
 import { redirect } from "next/navigation";
 import { connection } from "next/server";
 import { LOGIN_HREF } from "@/lib/navigation";
-import { getAuthMode, isAllowedUser } from "@/lib/supabase/env";
+import { getAuthMode, isAllowedUser, sessionExpired } from "@/lib/supabase/env";
 import { createClient } from "@/lib/supabase/server";
 
 export type SessionUser = { id: string; email: string | null };
@@ -27,6 +27,11 @@ export const getSessionUser = cache(async (): Promise<SessionUser | null> => {
   const supabase = await createClient();
   const { data, error } = await supabase.auth.getUser();
   if (error || !data.user || !isAllowedUser(data.user.id)) return null;
+
+  // Durée maximale de session (12 h), lue dans le jeton signé.
+  const { data: token } = await supabase.auth.getClaims();
+  if (!token || sessionExpired(token.claims, Date.now() / 1000)) return null;
+
   return { id: data.user.id, email: data.user.email ?? null };
 });
 

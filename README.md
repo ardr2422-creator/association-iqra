@@ -37,20 +37,31 @@ Vous n'avez rien à installer sur votre ordinateur : tout se fait dans le naviga
    jamais la clé *secret* / *service_role* : l'application n'en a pas besoin.
 5. **Base de données** : bouton *Connect → ORMs → Prisma* → les deux adresses
    proposées (`DATABASE_URL` et `DIRECT_URL`), en y remplaçant `[YOUR-PASSWORD]`.
-6. *(Conseillé)* **Coupez l'API publique** : *Integrations → Data API →*
-   désactivez *Enable Data API*. L'application ne l'utilise pas ; elle est de toute
-   façon verrouillée par les migrations, mais une porte fermée vaut mieux.
+6. **Certificat de la base** : *Database → Settings → SSL Configuration →*
+   *Download certificate*. Collez le contenu du fichier dans `DATABASE_CA_CERT`
+   (ce n'est pas un secret). Au même endroit, activez *Enforce SSL on incoming
+   connections* : Supabase refusera alors toute connexion non chiffrée.
+7. **Coupez l'API publique** : *Integrations → Data API →* désactivez *Enable Data
+   API*. L'application ne l'utilise pas ; elle est de toute façon verrouillée par
+   les migrations, mais une porte fermée vaut mieux.
+8. **Supprimez tout autre compte** dans *Authentication → Users* : seul celui de la
+   trésorière doit exister.
 
 ### 2. Vercel (hébergement)
 
 1. Sur [vercel.com](https://vercel.com), *Add New → Project* et importez ce dépôt GitHub.
-2. Dans *Environment Variables*, ajoutez les cinq variables ci-dessus :
+2. Dans *Environment Variables*, ajoutez les six variables ci-dessus :
    `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`,
-   `AUTH_ALLOWED_USER_ID`, `DATABASE_URL`, `DIRECT_URL`.
+   `AUTH_ALLOWED_USER_ID`, `DATABASE_URL`, `DIRECT_URL`, `DATABASE_CA_CERT`.
+   Pour `AUTH_ALLOWED_USER_ID`, `DATABASE_URL` et `DIRECT_URL`, ne cochez que
+   **Production** : les versions d'essai (« Preview ») n'ont ainsi aucun accès aux
+   vraies données.
 3. Cliquez sur *Deploy*. À chaque mise en ligne, Vercel lance `npm run vercel-build`
-   (réglé dans `vercel.json`, comme la région d'exécution : Paris) :
-   création ou mise à jour des tables, **contrôle de sécurité de la base** (le
-   déploiement est refusé si une table n'est pas verrouillée), puis construction du site.
+   (réglé dans `vercel.json`, comme la région d'exécution : Paris). Pour la
+   production uniquement : contrôle de la configuration, création ou mise à jour
+   des tables, **contrôle de sécurité de la base** (le déploiement est refusé si
+   la liaison n'est pas chiffrée ou si une table n'est pas verrouillée), puis
+   construction du site. Une version d'essai ne touche jamais à la base.
 4. Ouvrez l'adresse fournie par Vercel et connectez-vous.
 
 Si une variable manque, l'application affiche un message d'erreur explicite et
@@ -83,7 +94,7 @@ sans mot de passe ; il n'existe qu'en développement et est ignoré en productio
 | `npm run dev` | Lance l'application en développement |
 | `npm run build` puis `npm start` | Version de production |
 | `npm run typecheck` | Vérifie les types TypeScript |
-| `npm run lint` | Vérifie le style du code |
+| `npm run lint` | Vérifie le code, dont les garde-fous de sécurité |
 | `npm run db:migrate` | Crée et applique une migration (développement) |
 | `npm run db:deploy` | Applique les migrations (production) |
 | `npm run db:check` | Vérifie que la base est verrouillée (RLS, droits) |
@@ -128,14 +139,21 @@ Les données sont confidentielles : l'application est construite pour refuser pa
 défaut, avec plusieurs verrous indépendants.
 
 **Qui peut entrer**
-- Toutes les pages passent par `src/proxy.ts` : sans session valide, retour à la
-  connexion. Un seul compte est accepté (`AUTH_ALLOWED_USER_ID`), même si d'autres
-  comptes existaient dans Supabase.
-- Chaque lecture et chaque modification de données revérifie la session auprès de
-  Supabase (`requireUser`) : un cookie copié ne fonctionne plus après déconnexion.
-- Le cookie de session est `HttpOnly` (illisible par JavaScript), `Secure` et
-  `SameSite=Lax`. Le message d'erreur de connexion ne dit jamais si c'est l'email
-  ou le mot de passe qui est faux.
+- Toutes les adresses passent par `src/proxy.ts`, premier filtre : sans session
+  valide, retour à la connexion. Un seul compte est accepté
+  (`AUTH_ALLOWED_USER_ID`), même si d'autres comptes existaient dans Supabase.
+- La vraie protection des données est `requireUser` : chaque lecture et chaque
+  modification revérifie la session auprès de Supabase. Un cookie copié ne
+  fonctionne plus après déconnexion. `npm run lint` refuse toute action serveur
+  qui ne commence pas par cette vérification.
+- Le cookie de session est `HttpOnly` (illisible par JavaScript), `Secure`,
+  `SameSite=Lax`, et disparaît à la fermeture du navigateur. Une session dure
+  **12 heures au maximum**. Sur un ordinateur partagé, cliquez sur « Se déconnecter ».
+- **Force brute** : après 5 mots de passe faux en 15 minutes depuis une même
+  adresse, cette adresse est bloquée ; après 20 échecs sur un même email, toutes
+  adresses confondues, l'email est bloqué pendant la fenêtre.
+- Tout refus de connexion donne exactement la même réponse, que l'email soit
+  inconnu, le mot de passe faux, ou le compte non autorisé.
 - Configuration incomplète = application bloquée (erreur 503), jamais ouverte.
 
 **Injection SQL**
@@ -157,8 +175,12 @@ défaut, avec plusieurs verrous indépendants.
   `Permissions-Policy`, `Strict-Transport-Security` (HTTPS obligatoire).
 
 **Base de données**
+- La liaison entre l'application et la base est **chiffrée (TLS) et le serveur est
+  authentifié** par son certificat : sans certificat valide, l'application refuse
+  de se connecter plutôt que d'envoyer des données en clair.
 - RLS activé sur toutes les tables, sans aucune règle : l'API publique de Supabase
-  ne peut rien lire ni écrire. Les rôles de cette API n'ont en plus aucun droit.
+  ne peut rien lire ni écrire. Les rôles de cette API n'ont en plus aucun droit,
+  ni sur les tables ni sur les fonctions.
 - `npm run db:check` le vérifie et bloque la mise en ligne en cas d'oubli.
 - Contraintes dans la base : montants positifs, 4 versements au plus, etc.
 - Une catégorie déjà utilisée n'est jamais supprimée, seulement archivée.
@@ -172,6 +194,11 @@ défaut, avec plusieurs verrous indépendants.
 **Limites connues**
 - Pas de double authentification à la connexion de l'application elle-même
   (possible avec Supabase, à ajouter si vous le souhaitez).
+- Le blocage après 20 échecs sur un email protège contre une attaque venant de
+  nombreuses adresses, mais quelqu'un qui connaît l'email de la trésorière peut
+  ainsi l'empêcher de se connecter tant qu'il s'acharne. Il ne peut pas entrer.
+- Un nom écrit avec des lettres d'un autre alphabet qui se ressemblent (un « о »
+  cyrillique dans « Dons ») est accepté comme un nom différent.
 - La politique de contenu autorise les scripts « en ligne » de l'application
   (nécessaire à Next.js avec des pages pré-rendues) : elle bloque le chargement de
   scripts extérieurs, pas un script injecté dans la page. La protection contre

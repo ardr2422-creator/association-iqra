@@ -25,16 +25,26 @@ export type CategoryActionResult =
 
 const idSchema = z.string().regex(/^[a-z0-9_]{1,64}$/i);
 
+/** Caractères invisibles ou trompeurs : contrôle, formatage (zéro-largeur, sens d'écriture), usage privé, « lettres » vides. */
+const DECEPTIVE_CHARACTERS = /[\p{Cc}\p{Cf}\p{Co}\u115F\u1160\u2800\u3164\uFFA0]/u;
+
 const nameSchema = z
   .string()
-  .transform((value) => value.replace(/\s+/g, " ").trim())
+  // Forme Unicode canonique : « é » saisi en un ou deux caractères donne le même nom.
+  .transform((value) => value.normalize("NFC").replace(/\s+/g, " ").trim())
   .pipe(
     z
       .string()
       .min(1, "Donnez un nom à la catégorie.")
       .max(CATEGORY_NAME_MAX, `Le nom ne peut pas dépasser ${CATEGORY_NAME_MAX} caractères.`)
-      .refine((value) => !/[\u0000-\u001f\u007f]/.test(value), "Ce nom contient un caractère non autorisé."),
+      .refine((value) => !DECEPTIVE_CHARACTERS.test(value), "Ce nom contient un caractère non autorisé.")
+      .refine((value) => /[\p{L}\p{N}]/u.test(value), "Le nom doit contenir au moins une lettre ou un chiffre."),
   );
+
+/** Clé de comparaison : deux noms qui ne diffèrent que par la casse ou la forme Unicode sont « le même nom ». */
+function nameKey(name: string): string {
+  return name.normalize("NFKC").toLocaleLowerCase("fr");
+}
 
 const createSchema = z.object({
   name: nameSchema,
@@ -77,56 +87,69 @@ export async function saveCategory(
     color: formData.get("color"),
   };
 
+  const parsedUpdate = raw.id !== undefined ? updateSchema.safeParse(raw) : null;
+  const parsedCreate = raw.id === undefined ? createSchema.safeParse(raw) : null;
+  if (parsedUpdate && !parsedUpdate.success) return invalid(parsedUpdate.error);
+  if (parsedCreate && !parsedCreate.success) return invalid(parsedCreate.error);
+
   try {
-    const db = getDb();
+    const outcome = await getDb().$transaction(async (tx): Promise<CategoryFormState> => {
+      // Une seule écriture de catégorie à la fois : deux envois simultanés ne
+      // peuvent pas créer deux fois « le même » nom.
+      await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext('iqra:categories'))`;
 
-    if (raw.id !== undefined) {
-      const parsed = updateSchema.safeParse(raw);
-      if (!parsed.success) return invalid(parsed.error);
-      const { id, name, color } = parsed.data;
+      if (parsedUpdate?.success) {
+        const { id, name, color } = parsedUpdate.data;
+        const current = await tx.category.findUnique({ where: { id }, select: { type: true } });
+        if (!current) return { ok: false, message: GONE };
 
-      const current = await db.category.findUnique({ where: { id }, select: { type: true } });
-      if (!current) return { ok: false, message: GONE };
-
-      const clash = await db.category.findFirst({
-        where: { type: current.type, id: { not: id }, name: { equals: name, mode: "insensitive" } },
-        select: { archivedAt: true },
-      });
-      if (clash) {
-        return {
-          ok: false,
-          fieldErrors: {
-            name: clash.archivedAt
-              ? "Une catégorie archivée porte déjà ce nom. Restaurez-la ou choisissez un autre nom."
-              : DUPLICATE,
-          },
-        };
-      }
-
-      await db.category.update({ where: { id }, data: { name, color } });
-    } else {
-      const parsed = createSchema.safeParse(raw);
-      if (!parsed.success) return invalid(parsed.error);
-      const { name, type, color } = parsed.data;
-
-      const existing = await db.category.findFirst({
-        where: { type, name: { equals: name, mode: "insensitive" } },
-        select: { id: true, archivedAt: true },
-      });
-      if (existing && !existing.archivedAt) {
-        return { ok: false, fieldErrors: { name: DUPLICATE } };
-      }
-      if (existing) {
-        // Même nom qu'une catégorie archivée : on la remet en service, ses
-        // anciens mouvements restent ainsi rangés au même endroit.
-        await db.category.update({
-          where: { id: existing.id },
-          data: { name, color, archivedAt: null },
+        // Comparaison faite ici, en JavaScript : le nom saisi n'est jamais
+        // interprété comme un motif de recherche par la base.
+        const siblings = await tx.category.findMany({
+          where: { type: current.type, id: { not: id } },
+          select: { name: true, archivedAt: true },
         });
-      } else {
-        await db.category.create({ data: { name, type, color } });
+        const clash = siblings.find((other) => nameKey(other.name) === nameKey(name));
+        if (clash) {
+          return {
+            ok: false,
+            fieldErrors: {
+              name: clash.archivedAt
+                ? "Une catégorie archivée porte déjà ce nom. Restaurez-la ou choisissez un autre nom."
+                : DUPLICATE,
+            },
+          };
+        }
+        await tx.category.update({ where: { id }, data: { name, color } });
+        return { ok: true };
       }
-    }
+
+      if (parsedCreate?.success) {
+        const { name, type, color } = parsedCreate.data;
+        const siblings = await tx.category.findMany({
+          where: { type },
+          select: { id: true, name: true, archivedAt: true },
+        });
+        const existing = siblings.find((other) => nameKey(other.name) === nameKey(name));
+        if (existing && !existing.archivedAt) {
+          return { ok: false, fieldErrors: { name: DUPLICATE } };
+        }
+        if (existing) {
+          // Même nom qu'une catégorie archivée : on la remet en service, ses
+          // anciens mouvements restent ainsi rangés au même endroit.
+          await tx.category.update({
+            where: { id: existing.id },
+            data: { name, color, archivedAt: null },
+          });
+        } else {
+          await tx.category.create({ data: { name, type, color } });
+        }
+        return { ok: true };
+      }
+
+      return { ok: false, message: UNEXPECTED };
+    });
+    if (!outcome?.ok) return outcome;
   } catch (error) {
     if (isPrismaError(error, "P2002")) return { ok: false, fieldErrors: { name: DUPLICATE } };
     if (isPrismaError(error, "P2025")) return { ok: false, message: GONE };

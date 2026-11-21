@@ -1,6 +1,7 @@
 import "server-only";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "@/generated/prisma/client";
+import { pgConnectionOptions } from "@/lib/db-connection";
 
 const globalForPrisma = globalThis as unknown as { prisma?: PrismaClient };
 
@@ -10,7 +11,13 @@ function createPrismaClient(): PrismaClient {
     throw new Error("DATABASE_URL n'est pas définie : la base de données est inaccessible.");
   }
   const adapter = new PrismaPg(
-    { connectionString, max: 5, idleTimeoutMillis: 30_000, connectionTimeoutMillis: 10_000 },
+    {
+      // Chiffrement TLS vérifié dès que la base n'est pas locale.
+      ...pgConnectionOptions(connectionString),
+      max: 5,
+      idleTimeoutMillis: 30_000,
+      connectionTimeoutMillis: 10_000,
+    },
     { onPoolError: (error) => console.error("[base de données]", error.message) },
   );
   return new PrismaClient({

@@ -1,4 +1,4 @@
-import type { CookieOptionsWithName } from "@supabase/ssr";
+import type { CookieOptions, CookieOptionsWithName } from "@supabase/ssr";
 
 /**
  * Configuration de l'authentification.
@@ -56,3 +56,34 @@ export const AUTH_COOKIE_OPTIONS: CookieOptionsWithName = {
   path: "/",
   secure: process.env.NODE_ENV === "production",
 };
+
+/** Durée maximale d'une session, quoi qu'il arrive : 12 heures après la connexion. */
+export const SESSION_MAX_AGE_SECONDS = 12 * 60 * 60;
+
+/**
+ * Vrai si la connexion (mot de passe saisi) date de plus de 12 heures.
+ * L'heure de connexion est lue dans le jeton signé par Supabase (`amr`), que
+ * les renouvellements automatiques ne modifient pas. Si l'information est
+ * absente, on ne bloque pas : les autres contrôles restent en place.
+ */
+export function sessionExpired(claims: { amr?: unknown }, nowSeconds: number): boolean {
+  if (!Array.isArray(claims.amr)) return false;
+  const timestamps = claims.amr
+    .map((entry) => (entry && typeof entry === "object" ? (entry as { timestamp?: unknown }).timestamp : null))
+    .filter((value): value is number => typeof value === "number" && Number.isFinite(value));
+  if (timestamps.length === 0) return false;
+  return nowSeconds - Math.min(...timestamps) > SESSION_MAX_AGE_SECONDS;
+}
+
+/**
+ * Le cookie de session disparaît à la fermeture du navigateur : on retire la
+ * durée de vie de 400 jours posée par défaut. Les suppressions (valeur vide)
+ * gardent leurs options telles quelles.
+ */
+export function sessionCookieOptions(value: string, options: CookieOptions): CookieOptions {
+  if (!value) return options;
+  const sessionOnly = { ...options };
+  delete sessionOnly.maxAge;
+  delete sessionOnly.expires;
+  return sessionOnly;
+}

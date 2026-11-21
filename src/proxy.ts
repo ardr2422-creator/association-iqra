@@ -6,9 +6,14 @@ import {
   AUTH_COOKIE_OPTIONS,
   getAuthMode,
   isAllowedUser,
+  sessionCookieOptions,
+  sessionExpired,
   SUPABASE_KEY,
   SUPABASE_URL,
 } from "@/lib/supabase/env";
+
+/** Seuls fichiers servis sans session (lecture uniquement) : l'icône du site. */
+const PUBLIC_FILES = new Set(["/icon.svg"]);
 
 /**
  * Toutes les pages sont protégées : sans session valide, on est renvoyé vers
@@ -19,6 +24,8 @@ export async function proxy(request: NextRequest) {
   const { pathname, search, searchParams } = request.nextUrl;
   const isLogin = pathname === LOGIN_HREF;
   const isRead = request.method === "GET" || request.method === "HEAD";
+
+  if (isRead && PUBLIC_FILES.has(pathname)) return NextResponse.next();
 
   const mode = getAuthMode();
   if (mode === "misconfigured") {
@@ -58,6 +65,12 @@ export async function proxy(request: NextRequest) {
     // données (voir `requireUser`).
     const { data, error } = await supabase.auth.getClaims();
     authenticated = !error && !!data && isAllowedUser(data.claims.sub);
+
+    // Session de plus de 12 heures : on la ferme, il faut se reconnecter.
+    if (authenticated && data && sessionExpired(data.claims, Date.now() / 1000)) {
+      authenticated = false;
+      await supabase.auth.signOut({ scope: "local" });
+    }
   } catch {
     authenticated = false;
   }
@@ -65,7 +78,7 @@ export async function proxy(request: NextRequest) {
   // Chaque réponse emporte les cookies rafraîchis (ou effacés).
   const finish = (response: NextResponse) => {
     for (const { name, value, options } of pendingCookies) {
-      response.cookies.set(name, value, options);
+      response.cookies.set(name, value, sessionCookieOptions(value, options));
     }
     for (const [key, value] of Object.entries(pendingHeaders)) {
       response.headers.set(key, value);
@@ -98,8 +111,9 @@ export async function proxy(request: NextRequest) {
   return finish(NextResponse.next({ request }));
 }
 
+// Tout passe par le proxy, sauf les fichiers internes de Next.js (scripts, styles,
+// polices). Aucune exception par extension : une adresse comme « /x.png » ne
+// contourne donc pas le contrôle.
 export const config = {
-  matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|robots.txt|sitemap.xml|.*\\.(?:svg|png|jpg|jpeg|gif|webp|avif|ico|woff2?)$).*)",
-  ],
+  matcher: ["/((?!_next/static|_next/image).*)"],
 };

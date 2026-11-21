@@ -216,3 +216,15 @@ model Settings {
 
   @@map("settings")
 }
+
+/// Tentatives de connexion refusées, pour limiter la force brute.
+/// `key` est une empreinte (adresse IP ou email hachés) : rien de lisible n'est stocké.
+/// Les lignes de plus de 24 h sont purgées automatiquement.
+model LoginAttempt {
+  id        String   @id @default(cuid())
+  key       String
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@index([key, createdAt])
+  @@map("login_attempts")
+}

@@ -1,7 +1,7 @@
 import "server-only";
 import { cookies } from "next/headers";
 import { createServerClient } from "@supabase/ssr";
-import { AUTH_COOKIE_OPTIONS, SUPABASE_KEY, SUPABASE_URL } from "./env";
+import { AUTH_COOKIE_OPTIONS, sessionCookieOptions, SUPABASE_KEY, SUPABASE_URL } from "./env";
 
 /** Client Supabase côté serveur. À créer à chaque appel, jamais au niveau du module. */
 export async function createClient() {
@@ -13,7 +13,7 @@ export async function createClient() {
       setAll(cookiesToSet) {
         try {
           for (const { name, value, options } of cookiesToSet) {
-            cookieStore.set(name, value, options);
+            cookieStore.set(name, value, sessionCookieOptions(value, options));
           }
         } catch {
           // Pendant le rendu d'un composant serveur, on ne peut pas écrire de cookie :

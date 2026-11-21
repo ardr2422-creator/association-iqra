@@ -35,8 +35,12 @@ Vous n'avez rien à installer sur votre ordinateur : tout se fait dans le naviga
 4. **Clés** : *Project Settings → API* → l'URL du projet (`NEXT_PUBLIC_SUPABASE_URL`)
    et la clé *publishable* (`NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`). Ne copiez
    jamais la clé *secret* / *service_role* : l'application n'en a pas besoin.
-5. **Base de données** : bouton *Connect → ORMs → Prisma* → les deux adresses
-   proposées (`DATABASE_URL` et `DIRECT_URL`), en y remplaçant `[YOUR-PASSWORD]`.
+5. **Base de données** : le plus simple est de relier la base au projet depuis
+   Vercel (*Storage →* la base *→ Connect Project*, en ne cochant que
+   **Production**) : Vercel pose alors lui-même les adresses de connexion, sans mot
+   de passe à copier. Sinon, bouton *Connect → ORMs → Prisma* dans Supabase → les
+   deux adresses proposées (`DATABASE_URL` et `DIRECT_URL`), en y remplaçant
+   `[YOUR-PASSWORD]`.
 6. **Certificat de la base** : *Database → Settings → SSL Configuration →*
    *Download certificate*. Collez le contenu du fichier dans `DATABASE_CA_CERT`
    (ce n'est pas un secret). Au même endroit, activez *Enforce SSL on incoming

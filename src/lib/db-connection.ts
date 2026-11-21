@@ -27,6 +27,24 @@ const TLS_PARAMS = [
   "uselibpqcompat",
 ];
 
+/**
+ * Adresse de la base pour l'application. `POSTGRES_PRISMA_URL` est le nom posé
+ * automatiquement quand la base Supabase est reliée au projet depuis Vercel
+ * (onglet Storage) : aucun mot de passe à copier à la main.
+ */
+export function runtimeDatabaseUrl(): string | undefined {
+  return process.env.DATABASE_URL || process.env.POSTGRES_PRISMA_URL || undefined;
+}
+
+/** Adresse pour les migrations (connexion directe, hors « transaction pooler »). */
+export function migrationDatabaseUrl(): string | undefined {
+  return (
+    process.env.DIRECT_URL ||
+    process.env.POSTGRES_URL_NON_POOLING ||
+    runtimeDatabaseUrl()
+  );
+}
+
 export function isLocalDatabase(connectionString: string): boolean {
   return LOCAL_HOSTS.has(new URL(connectionString).hostname);
 }
@@ -42,9 +60,14 @@ export const MISSING_CA_MESSAGE =
   "Certificat de la base manquant : connexion chiffrée impossible. Téléchargez-le dans Supabase " +
   "(Database → Settings → SSL Configuration) et collez-le dans la variable DATABASE_CA_CERT.";
 
+/** Seuls paramètres d'adresse conservés ; tout le reste (TLS compris) est retiré. */
+const KEPT_PARAMS = new Set(["application_name", "options", "schema", "pgbouncer", "connection_limit", "connect_timeout"]);
+
 function withoutTlsParams(connectionString: string): URL {
   const url = new URL(connectionString);
-  for (const param of TLS_PARAMS) url.searchParams.delete(param);
+  for (const param of [...url.searchParams.keys()]) {
+    if (TLS_PARAMS.includes(param) || !KEPT_PARAMS.has(param)) url.searchParams.delete(param);
+  }
   return url;
 }
 
@@ -62,10 +85,11 @@ export function pgConnectionOptions(connectionString: string): PgConnectionOptio
 
   // Les paramètres TLS de l'adresse l'emporteraient sur `ssl` : on les retire
   // pour qu'aucun `sslmode=disable` ou `no-verify` ne puisse affaiblir la connexion.
-  return {
-    connectionString: withoutTlsParams(connectionString).toString(),
-    ssl: { ca, rejectUnauthorized: true },
-  };
+  const url = withoutTlsParams(connectionString);
+  for (const param of ["schema", "pgbouncer", "connection_limit", "connect_timeout"]) {
+    url.searchParams.delete(param); // paramètres destinés à Prisma, inconnus de node-postgres
+  }
+  return { connectionString: url.toString(), ssl: { ca, rejectUnauthorized: true } };
 }
 
 /**

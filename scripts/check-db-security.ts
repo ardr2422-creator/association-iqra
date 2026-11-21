@@ -9,14 +9,14 @@
 // Usage : npm run db:check
 import { config as loadEnv } from "dotenv";
 import pg from "pg";
-import { isLocalDatabase, pgConnectionOptions } from "../src/lib/db-connection";
+import { isLocalDatabase, migrationDatabaseUrl, pgConnectionOptions } from "../src/lib/db-connection";
 
 loadEnv({ path: [".env.local", ".env.development.local", ".env"], quiet: true });
 
 async function main(): Promise<string[]> {
-  const connectionString = process.env.DIRECT_URL || process.env.DATABASE_URL;
+  const connectionString = migrationDatabaseUrl();
   if (!connectionString) {
-    throw new Error("DIRECT_URL / DATABASE_URL manquante : impossible de vérifier la base.");
+    throw new Error("Adresse de la base manquante (DATABASE_URL) : impossible de vérifier la base.");
   }
 
   const problems: string[] = [];

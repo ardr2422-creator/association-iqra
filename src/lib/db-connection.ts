@@ -1,3 +1,4 @@
+import { rootCertificates } from "node:tls";
 import { SUPABASE_CA_CERT } from "./db-ca";
 
 /*
@@ -75,7 +76,7 @@ function withoutTlsParams(connectionString: string): URL {
 
 export type PgConnectionOptions = {
   connectionString: string;
-  ssl?: { ca?: string; rejectUnauthorized: true };
+  ssl?: { ca?: string[]; rejectUnauthorized: true };
 };
 
 /** Options pour node-postgres (pg.Pool, pg.Client, adaptateur Prisma). */
@@ -92,7 +93,11 @@ export function pgConnectionOptions(connectionString: string): PgConnectionOptio
   }
   return {
     connectionString: url.toString(),
-    ssl: ca ? { ca, rejectUnauthorized: true } : { rejectUnauthorized: true },
+    // Autorités habituelles + certificat racine de Supabase : le serveur est
+    // vérifié quelle que soit l'autorité qui a signé son certificat.
+    ssl: ca
+      ? { ca: [...rootCertificates, ca], rejectUnauthorized: true }
+      : { rejectUnauthorized: true },
   };
 }
 

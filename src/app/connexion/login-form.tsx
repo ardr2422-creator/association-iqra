@@ -4,12 +4,8 @@ import { Suspense, useActionState, useEffect, useId, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 import { AlertIcon } from "@/components/icons";
 import { buttonClasses } from "@/components/ui/button";
+import { FIELD_CLASSES, LABEL_CLASSES } from "@/components/ui/field";
 import { login, type LoginState } from "./actions";
-
-const FIELD =
-  "w-full rounded-field border border-line-strong bg-surface px-3.5 py-3 text-base text-ink placeholder:text-faint " +
-  "transition-[border-color,box-shadow] duration-fast ease-soft " +
-  "focus:border-accent focus:outline-none focus:ring-4 focus:ring-primary-soft";
 
 /** Page à rouvrir après connexion. `useSearchParams` impose le <Suspense>. */
 function NextField() {
@@ -63,7 +59,7 @@ export function LoginForm() {
       </Suspense>
 
       <div className="flex flex-col gap-1.5">
-        <label htmlFor={emailId} className="text-sm text-nav">
+        <label htmlFor={emailId} className={LABEL_CLASSES}>
           Adresse email
         </label>
         <input
@@ -75,12 +71,12 @@ export function LoginForm() {
           required
           defaultValue={state?.email}
           aria-describedby={state?.error ? errorId : undefined}
-          className={FIELD}
+          className={FIELD_CLASSES}
         />
       </div>
 
       <div className="flex flex-col gap-1.5">
-        <label htmlFor={passwordId} className="text-sm text-nav">
+        <label htmlFor={passwordId} className={LABEL_CLASSES}>
           Mot de passe
         </label>
         <input
@@ -91,7 +87,7 @@ export function LoginForm() {
           required
           aria-invalid={state?.error ? true : undefined}
           aria-describedby={state?.error ? errorId : undefined}
-          className={FIELD}
+          className={FIELD_CLASSES}
         />
       </div>
 

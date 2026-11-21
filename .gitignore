@@ -45,3 +45,6 @@ next-env.d.ts
 
 # client Prisma généré (recréé par `npm install`)
 /src/generated/prisma
+
+# captures et journaux des tests de bout en bout
+/tests/e2e/.captures

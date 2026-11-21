@@ -3,7 +3,7 @@ import Link from "next/link";
 import clsx from "clsx";
 
 type Variant = "primary" | "secondary" | "ghost";
-type Size = "md" | "lg";
+type Size = "sm" | "md" | "lg";
 
 const BASE =
   "inline-flex select-none items-center justify-center gap-2 rounded-control font-medium leading-tight no-underline " +
@@ -17,6 +17,7 @@ const VARIANTS: Record<Variant, string> = {
 };
 
 const SIZES: Record<Size, string> = {
+  sm: "px-4 py-2.5 text-sm",
   md: "px-[22px] py-[13px] text-base",
   lg: "px-6 py-[15px] text-base",
 };

@@ -239,3 +239,49 @@
     animation: none !important;
   }
 }
+
+/* ------------------------------------------------------------------ */
+/* Fenêtres modales (<dialog>) : ouverture et fermeture en douceur     */
+/* ------------------------------------------------------------------ */
+dialog.modal {
+  opacity: 0;
+  scale: 0.96;
+  translate: 0 10px;
+  transition:
+    opacity 200ms var(--ease-soft),
+    scale 260ms var(--ease-soft),
+    translate 260ms var(--ease-soft),
+    overlay 260ms allow-discrete,
+    display 260ms allow-discrete;
+}
+dialog.modal[open] {
+  opacity: 1;
+  scale: 1;
+  translate: 0 0;
+}
+@starting-style {
+  dialog.modal[open] {
+    opacity: 0;
+    scale: 0.96;
+    translate: 0 10px;
+  }
+}
+dialog.modal::backdrop {
+  background-color: transparent;
+  transition:
+    background-color 260ms ease-out,
+    overlay 260ms allow-discrete,
+    display 260ms allow-discrete;
+}
+dialog.modal[open]::backdrop {
+  background-color: var(--overlay);
+}
+@starting-style {
+  dialog.modal[open]::backdrop {
+    background-color: transparent;
+  }
+}
+/* La page derrière une fenêtre ouverte ne défile pas. */
+html:has(dialog.modal[open]) {
+  overflow: hidden;
+}

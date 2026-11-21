@@ -48,4 +48,27 @@ Animations (« fluides et propres ») :
   `MotionConfig reducedMotion="user"` ; à gérer à la main pour `animate()` et
   l'API Web Animations).
 
-Vérifier avant de livrer : `npm run typecheck`, `npm run lint`, `npm run build`.
+Sécurité (données confidentielles — exigence forte de l'utilisateur) :
+
+- Action serveur = adresse publique. Ordre imposé : `await requireUser()`, puis
+  validation zod de TOUT ce qui vient du navigateur, puis Prisma. Modèle à suivre :
+  `src/app/(app)/categories/actions.ts`. Les lectures vont dans `src/lib/data/`.
+- Jamais de SQL construit à la main : pas de `$queryRawUnsafe`, `$executeRawUnsafe`,
+  `Prisma.raw` (bloqués par ESLint). `$queryRaw` uniquement en gabarit étiqueté.
+- Jamais de `dangerouslySetInnerHTML`. Aucun client Supabase dans le navigateur.
+- Chaque migration qui crée une table doit contenir
+  `ALTER TABLE "…" ENABLE ROW LEVEL SECURITY;` — `npm run db:check` (lancé par
+  `vercel-build`) échoue sinon.
+- On n'efface pas l'historique comptable : archiver ou annuler plutôt que supprimer.
+- Ne jamais afficher au visiteur un message d'erreur technique ; journaliser côté
+  serveur (`console.error`) et renvoyer un message générique.
+
+Interface des formulaires : fenêtre `Dialog` (`src/components/ui/dialog.tsx`,
+élément natif animé en CSS), champs `FIELD_CLASSES`, erreurs dans un
+`role="alert"`, bouton d'envoi en `aria-disabled` pendant l'envoi. Listes qui
+changent : `AnimatePresence` + hauteur animée (voir `category-board.tsx`).
+
+Vérifier avant de livrer : `npm run typecheck`, `npm run lint`, `npm run build`,
+puis `npm run test:e2e` (faux Supabase Auth + Postgres local ; démarrer Postgres
+avec `pg_ctlcluster 16 main start` et créer la base si besoin, voir
+`tests/e2e/run.sh`). Ajouter un fichier de test par étape.

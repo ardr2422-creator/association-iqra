@@ -40,6 +40,8 @@ const eslintConfig = defineConfig([
     "next-env.d.ts",
     // Client Prisma généré :
     "src/generated/**",
+    // Scripts de test (CommonJS, pilotés par Playwright) :
+    "tests/**",
   ]),
 ]);
 

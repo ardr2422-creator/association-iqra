@@ -7,7 +7,6 @@ import {
   databaseCaCert,
   isLocalDatabase,
   migrationDatabaseUrl,
-  MISSING_CA_MESSAGE,
   prismaCliUrl,
 } from "./src/lib/db-connection";
 
@@ -26,12 +25,8 @@ function cliDatabaseUrl(): string | undefined {
   if (isLocalDatabase(raw)) return raw;
 
   const ca = databaseCaCert();
-  if (!ca) {
-    // Sans certificat, la vérification stricte fera échouer la connexion : on ne
-    // migre jamais sur une liaison dont l'autre bout n'est pas authentifié.
-    console.warn(`⚠ ${MISSING_CA_MESSAGE}`);
-    return prismaCliUrl(raw, null);
-  }
+  // Sans certificat fourni, la vérification se fait avec les autorités du système.
+  if (!ca) return prismaCliUrl(raw, null);
   const caFile = join(mkdtempSync(join(tmpdir(), "iqra-ca-")), "ca.pem");
   writeFileSync(caFile, ca + "\n", { mode: 0o600 });
   return prismaCliUrl(raw, caFile);

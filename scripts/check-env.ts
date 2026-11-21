@@ -1,13 +1,7 @@
 // Vérifie la configuration avant une mise en ligne, avec des messages clairs.
 // Lancé par `npm run vercel-build` pour la production.
 import { config as loadEnv } from "dotenv";
-import {
-  databaseCaCert,
-  isLocalDatabase,
-  migrationDatabaseUrl,
-  MISSING_CA_MESSAGE,
-  runtimeDatabaseUrl,
-} from "../src/lib/db-connection";
+import { isLocalDatabase, migrationDatabaseUrl, runtimeDatabaseUrl } from "../src/lib/db-connection";
 
 loadEnv({ path: [".env.local", ".env.development.local", ".env"], quiet: true });
 
@@ -28,7 +22,7 @@ if (!runtimeDatabaseUrl()) {
 for (const value of [runtimeDatabaseUrl(), migrationDatabaseUrl()]) {
   if (!value) continue;
   try {
-    if (!isLocalDatabase(value) && !databaseCaCert()) problems.push(MISSING_CA_MESSAGE);
+    isLocalDatabase(value);
   } catch {
     problems.push("l'adresse de la base de données n'est pas valide.");
   }

@@ -6,8 +6,9 @@ import { SUPABASE_CA_CERT } from "./db-ca";
  * Par défaut, le pilote Postgres de Node n'utilise PAS de chiffrement tant
  * qu'on ne le lui demande pas. Dès que la base n'est pas sur la machine
  * elle-même, on impose donc TLS avec vérification du certificat ET du nom du
- * serveur. Sans certificat racine, on refuse de se connecter plutôt que
- * d'envoyer des données confidentielles en clair.
+ * serveur : avec le certificat racine fourni (DATABASE_CA_CERT), sinon avec les
+ * autorités reconnues par le système. Dans les deux cas, un serveur dont
+ * l'identité ne peut pas être prouvée est refusé : rien ne part en clair.
  *
  * Ce module ne dépend pas de Next.js : il sert aussi aux scripts et à Prisma.
  */
@@ -56,8 +57,9 @@ export function databaseCaCert(): string | null {
   return pem.includes("BEGIN CERTIFICATE") ? pem : null;
 }
 
+/** À afficher quand la vérification du certificat échoue sans certificat racine fourni. */
 export const MISSING_CA_MESSAGE =
-  "Certificat de la base manquant : connexion chiffrée impossible. Téléchargez-le dans Supabase " +
+  "Le certificat de la base n'est pas reconnu. Téléchargez celui de Supabase " +
   "(Database → Settings → SSL Configuration) et collez-le dans la variable DATABASE_CA_CERT.";
 
 /** Seuls paramètres d'adresse conservés ; tout le reste (TLS compris) est retiré. */
@@ -73,7 +75,7 @@ function withoutTlsParams(connectionString: string): URL {
 
 export type PgConnectionOptions = {
   connectionString: string;
-  ssl?: { ca: string; rejectUnauthorized: true };
+  ssl?: { ca?: string; rejectUnauthorized: true };
 };
 
 /** Options pour node-postgres (pg.Pool, pg.Client, adaptateur Prisma). */
@@ -81,7 +83,6 @@ export function pgConnectionOptions(connectionString: string): PgConnectionOptio
   if (isLocalDatabase(connectionString)) return { connectionString };
 
   const ca = databaseCaCert();
-  if (!ca) throw new Error(MISSING_CA_MESSAGE);
 
   // Les paramètres TLS de l'adresse l'emporteraient sur `ssl` : on les retire
   // pour qu'aucun `sslmode=disable` ou `no-verify` ne puisse affaiblir la connexion.
@@ -89,7 +90,10 @@ export function pgConnectionOptions(connectionString: string): PgConnectionOptio
   for (const param of ["schema", "pgbouncer", "connection_limit", "connect_timeout"]) {
     url.searchParams.delete(param); // paramètres destinés à Prisma, inconnus de node-postgres
   }
-  return { connectionString: url.toString(), ssl: { ca, rejectUnauthorized: true } };
+  return {
+    connectionString: url.toString(),
+    ssl: ca ? { ca, rejectUnauthorized: true } : { rejectUnauthorized: true },
+  };
 }
 
 /**

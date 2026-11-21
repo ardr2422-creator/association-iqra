@@ -9,7 +9,13 @@
 // Usage : npm run db:check
 import { config as loadEnv } from "dotenv";
 import pg from "pg";
-import { isLocalDatabase, migrationDatabaseUrl, pgConnectionOptions } from "../src/lib/db-connection";
+import {
+  databaseCaCert,
+  isLocalDatabase,
+  migrationDatabaseUrl,
+  MISSING_CA_MESSAGE,
+  pgConnectionOptions,
+} from "../src/lib/db-connection";
 
 loadEnv({ path: [".env.local", ".env.development.local", ".env"], quiet: true });
 
@@ -95,7 +101,11 @@ main().then(
     process.exit(1);
   },
   (error) => {
-    console.error("✗ Vérification impossible :", error instanceof Error ? error.message : error);
+    const message = error instanceof Error ? error.message : String(error);
+    console.error("✗ Vérification impossible :", message);
+    if (/certificate|self.signed|issuer/i.test(message) && !databaseCaCert()) {
+      console.error("  " + MISSING_CA_MESSAGE);
+    }
     process.exit(1);
   },
 );

@@ -57,8 +57,11 @@ Vous n'avez rien à installer sur votre ordinateur : tout se fait dans le naviga
    `[YOUR-PASSWORD]`.
 6. **Certificat de la base** : *Database → Settings → SSL Configuration →*
    *Download certificate*. Collez le contenu du fichier dans `DATABASE_CA_CERT`
-   (ce n'est pas un secret). Au même endroit, activez *Enforce SSL on incoming
-   connections* : Supabase refusera alors toute connexion non chiffrée.
+   (ce n'est pas un secret). L'application vérifie toujours l'identité de la
+   base ; ce certificat est nécessaire si elle n'est pas reconnue par les
+   autorités habituelles (la connexion est alors refusée, jamais dégradée). Au
+   même endroit, activez *Enforce SSL on incoming connections* : Supabase
+   refusera alors toute connexion non chiffrée.
 7. **Coupez l'API publique** : *Integrations → Data API →* désactivez *Enable Data
    API*. L'application ne l'utilise pas ; elle est de toute façon verrouillée par
    les migrations, mais une porte fermée vaut mieux.
@@ -194,8 +197,9 @@ défaut, avec plusieurs verrous indépendants.
 
 **Base de données**
 - La liaison entre l'application et la base est **chiffrée (TLS) et le serveur est
-  authentifié** par son certificat : sans certificat valide, l'application refuse
-  de se connecter plutôt que d'envoyer des données en clair.
+  authentifié** par son certificat : si l'identité du serveur ne peut pas être
+  prouvée, l'application refuse de se connecter plutôt que d'envoyer des données
+  en clair.
 - RLS activé sur toutes les tables, sans aucune règle : l'API publique de Supabase
   ne peut rien lire ni écrire. Les rôles de cette API n'ont en plus aucun droit,
   ni sur les tables ni sur les fonctions.

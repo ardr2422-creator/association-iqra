@@ -39,3 +39,9 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# garder le modèle de configuration dans le dépôt
+!.env.example
+
+# client Prisma généré (recréé par `npm install`)
+/src/generated/prisma

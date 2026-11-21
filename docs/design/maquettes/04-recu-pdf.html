@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Reçu de paiement</title>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;display=swap">
+<style>
+body{margin:0}
+.l{display:flex;justify-content:space-between;padding:14px 0;border-bottom:1px solid #E5DADD;font-size:15px}
+</style>
+</helmet>
+<div style="width: 794px; height: 1123px; box-sizing: border-box; padding: 72px 72px 56px; background: #FFFFFF; font-family: Inter, sans-serif; color: #2A1A1E; display: flex; flex-direction: column">
+  <header style="display: flex; justify-content: space-between; align-items: flex-start; padding-bottom: 28px; border-bottom: 3px solid #7A1F35">
+    <div>
+      <p style="margin: 0; font-size: 34px; font-weight: 600; color: #7A1F35; letter-spacing: -0.5px">Association Iqra</p>
+      <p style="margin: 8px 0 0; font-size: 13px; color: #5C4A4F; line-height: 1.6">[Adresse de l'association]<br>[Code postal, ville]<br>[Email] · [Téléphone]<br>N° RNA : [RNA]</p>
+    </div>
+    <div style="text-align: right">
+      <p style="margin: 0; font-size: 22px; font-weight: 600; letter-spacing: 1px">REÇU</p>
+      <p style="margin: 8px 0 0; font-size: 14px; color: #5C4A4F">N° [2026-0001]</p>
+      <p style="margin: 4px 0 0; font-size: 14px; color: #5C4A4F">Le [date]</p>
+    </div>
+  </header>
+
+  <section style="margin-top: 40px">
+    <p style="margin: 0 0 6px; font-size: 13px; color: #6B5A5E">Reçu de</p>
+    <p style="margin: 0; font-size: 18px; font-weight: 500">[Nom et prénom du payeur]</p>
+    <p style="margin: 4px 0 0; font-size: 14px; color: #5C4A4F">[Adresse du payeur]</p>
+  </section>
+
+  <section style="margin-top: 40px">
+    <div class="l" style="font-size: 13px; color: #6B5A5E; border-bottom: 1px solid #2A1A1E"><span>Désignation</span><span>Montant</span></div>
+    <div class="l"><span>[Cours d'arabe 2026-2027] · versement [2] sur [4]</span><span>[MONTANT] €</span></div>
+    <div class="l"><span style="color: #5C4A4F">Mode de paiement</span><span>[Chèque n° … · Banque …]</span></div>
+    <div style="display: flex; justify-content: flex-end; margin-top: 20px">
+      <div style="background: #F7EEF0; padding: 18px 28px; border-radius: 8px; display: flex; gap: 40px; align-items: baseline">
+        <span style="font-size: 15px; color: #5C4A4F">Total reçu</span>
+        <span style="font-size: 26px; font-weight: 600; color: #7A1F35">[MONTANT] €</span>
+      </div>
+    </div>
+    <p style="margin: 24px 0 0; font-size: 14px; color: #5C4A4F">Somme reçue en toutes lettres : [montant en lettres] euros.</p>
+  </section>
+
+  <section style="margin-top: 36px; padding: 18px 22px; border: 1px solid #E5DADD; border-radius: 8px; font-size: 14px; color: #5C4A4F; line-height: 1.6">
+    Échéancier : chèque 1 encaissé le [date] · chèque 2 le [date] · chèque 3 prévu le [date] · chèque 4 prévu le [date]
+  </section>
+
+  <div style="flex: 1"></div>
+
+  <section style="display: flex; justify-content: flex-end">
+    <div style="width: 260px; text-align: center">
+      <p style="margin: 0 0 70px; font-size: 14px; color: #5C4A4F">Pour l'association, le/la trésorier(e)</p>
+      <div style="border-top: 1px solid #2A1A1E; padding-top: 8px; font-size: 13px; color: #6B5A5E">[Nom et signature]</div>
+    </div>
+  </section>
+
+  <footer style="margin-top: 40px; padding-top: 16px; border-top: 1px solid #E5DADD; font-size: 12px; color: #6B5A5E; text-align: center">
+    Association loi 1901 · Ce reçu atteste du paiement et ne vaut pas reçu fiscal.
+  </footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":794,"height":1123}}'>
+class Component extends DCLogic {
+renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,218 @@
+// Modèle de données d'Iqra Compta.
+//
+// Conventions :
+// - les montants sont stockés en centimes (entiers), toujours positifs ;
+// - les dates comptables sont des dates « jour seul » (@db.Date) ;
+// - les tables et colonnes sont en snake_case côté Postgres.
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+/// Sens d'un mouvement : entrée ou sortie d'argent.
+enum FlowType {
+  INCOME
+  EXPENSE
+
+  @@map("flow_type")
+}
+
+/// Moyens de paiement. La carte ne sert que pour les dépenses.
+enum PaymentMethod {
+  CASH
+  CHEQUE
+  TRANSFER
+  CARD
+
+  @@map("payment_method")
+}
+
+enum TransactionStatus {
+  /// Argent réellement encaissé ou dépensé : compte dans le solde.
+  COMPLETED
+  /// Mouvement annulé : conservé pour l'historique, exclu du solde.
+  CANCELLED
+
+  @@map("transaction_status")
+}
+
+/// Statut d'une échéance. « À encaisser » n'est pas stocké : c'est une
+/// échéance PLANNED dont la date est arrivée.
+enum InstallmentStatus {
+  PLANNED
+  CASHED
+  REJECTED
+
+  @@map("installment_status")
+}
+
+/// Famille ou adhérent.
+model Member {
+  id         String    @id @default(cuid())
+  name       String
+  phone      String?
+  email      String?
+  address    String?
+  notes      String?
+  joinedOn   DateTime  @default(dbgenerated("CURRENT_DATE")) @map("joined_on") @db.Date
+  archivedAt DateTime? @map("archived_at") @db.Timestamptz(6)
+  createdAt  DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt  DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  transactions Transaction[]
+  paymentPlans PaymentPlan[]
+
+  @@index([name])
+  @@map("members")
+}
+
+/// Catégorie d'entrée ou de sortie, modifiable par la trésorière.
+model Category {
+  id         String    @id @default(cuid())
+  name       String
+  type       FlowType
+  /// Clé de couleur de la pastille (« bordeaux », « vert », « sable »…).
+  color      String    @default("bordeaux")
+  position   Int       @default(0)
+  archivedAt DateTime? @map("archived_at") @db.Timestamptz(6)
+  createdAt  DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt  DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  transactions Transaction[]
+  paymentPlans PaymentPlan[]
+
+  @@unique([type, name])
+  @@map("categories")
+}
+
+/// Mouvement d'argent réel (encaissement ou dépense). Un chèque seulement
+/// prévu n'est PAS une transaction : il le devient quand il est encaissé.
+model Transaction {
+  id           String            @id @default(cuid())
+  date         DateTime          @db.Date
+  type         FlowType
+  categoryId   String            @map("category_id")
+  memberId     String?           @map("member_id")
+  label        String
+  amountCents  Int               @map("amount_cents")
+  method       PaymentMethod
+  status       TransactionStatus @default(COMPLETED)
+  chequeNumber String?           @map("cheque_number")
+  bank         String?
+  notes        String?
+  createdAt    DateTime          @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt    DateTime          @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  category    Category     @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  member      Member?      @relation(fields: [memberId], references: [id], onDelete: Restrict)
+  installment Installment?
+  receipt     Receipt?
+
+  @@index([date])
+  @@index([categoryId])
+  @@index([memberId])
+  @@map("transactions")
+}
+
+/// Paiement en plusieurs fois (4 maximum) pour un adhérent et une catégorie.
+model PaymentPlan {
+  id               String   @id @default(cuid())
+  memberId         String   @map("member_id")
+  categoryId       String   @map("category_id")
+  /// Ex. « Cours d'arabe 2026-2027 ».
+  label            String?
+  /// Nombre d'inscrits concernés (enfants, par exemple).
+  participants     Int?
+  totalCents       Int      @map("total_cents")
+  installmentCount Int      @map("installment_count")
+  notes            String?
+  createdAt        DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt        DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  member       Member        @relation(fields: [memberId], references: [id], onDelete: Restrict)
+  category     Category      @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  installments Installment[]
+
+  @@index([memberId])
+  @@index([categoryId])
+  @@map("payment_plans")
+}
+
+/// Échéance d'un paiement en plusieurs fois (le plus souvent un chèque).
+model Installment {
+  id            String            @id @default(cuid())
+  planId        String            @map("plan_id")
+  /// Rang du versement : 1, 2, 3 ou 4.
+  number        Int
+  amountCents   Int               @map("amount_cents")
+  dueDate       DateTime          @map("due_date") @db.Date
+  method        PaymentMethod     @default(CHEQUE)
+  chequeNumber  String?           @map("cheque_number")
+  bank          String?
+  status        InstallmentStatus @default(PLANNED)
+  cashedOn      DateTime?         @map("cashed_on") @db.Date
+  /// Transaction créée au moment de l'encaissement.
+  transactionId String?           @unique @map("transaction_id")
+  createdAt     DateTime          @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt     DateTime          @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  plan        PaymentPlan  @relation(fields: [planId], references: [id], onDelete: Cascade)
+  transaction Transaction? @relation(fields: [transactionId], references: [id], onDelete: SetNull)
+
+  @@unique([planId, number])
+  @@index([status, dueDate])
+  @@map("installments")
+}
+
+/// Reçu de paiement. Le nom et l'adresse du payeur sont figés à l'émission.
+model Receipt {
+  id            String   @id @default(cuid())
+  /// « 2026-0001 » : année + numéro d'ordre, sans trou.
+  number        String   @unique
+  year          Int
+  sequence      Int
+  transactionId String   @unique @map("transaction_id")
+  issuedOn      DateTime @map("issued_on") @db.Date
+  payerName     String   @map("payer_name")
+  payerAddress  String?  @map("payer_address")
+  pdfUrl        String?  @map("pdf_url")
+  createdAt     DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  transaction Transaction @relation(fields: [transactionId], references: [id], onDelete: Restrict)
+
+  @@unique([year, sequence])
+  @@map("receipts")
+}
+
+/// Dernier numéro de reçu attribué pour chaque année.
+model ReceiptCounter {
+  year Int @id
+  last Int @default(0)
+
+  @@map("receipt_counters")
+}
+
+/// Informations de l'association (une seule ligne, id = 1), reprises sur les reçus.
+model Settings {
+  id                    Int      @id @default(1)
+  associationName       String   @default("Association Iqra") @map("association_name")
+  address               String?
+  postalCode            String?  @map("postal_code")
+  city                  String?
+  email                 String?
+  phone                 String?
+  rna                   String?
+  treasurerName         String?  @map("treasurer_name")
+  /// Destinataire des rappels de chèques.
+  reminderEmail         String?  @map("reminder_email")
+  /// Reçu fiscal pour les dons : pas encore confirmé par l'association.
+  fiscalReceiptsEnabled Boolean  @default(false) @map("fiscal_receipts_enabled")
+  updatedAt             DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  @@map("settings")
+}

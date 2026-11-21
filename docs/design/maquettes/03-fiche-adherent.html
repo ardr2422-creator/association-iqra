@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Fiche adhérent</title>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;display=swap">
+<style>
+body{margin:0;background:#FBF8F6}
+a{color:#7A1F35}a:hover{color:#5A1426}
+.nav{display:flex;align-items:center;gap:12px;padding:12px 16px;border-radius:12px;color:#5C4A4F;text-decoration:none;font-size:15px}
+.nav:hover{background:#F3E9EB;color:#2A1A1E}
+.card{background:#FFFFFF;border:1px solid #EEE3E5;border-radius:20px;padding:28px}
+.row{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:16px 0;border-top:1px solid #F1E8EA}
+@media (max-width:900px){.shell{flex-direction:column}.side{width:auto !important;flex-direction:row !important;flex-wrap:wrap}.grid2{grid-template-columns:1fr !important}.steps{grid-template-columns:1fr 1fr !important}}
+</style>
+</helmet>
+<div class="shell" style="display: flex; min-height: 980px; font-family: Inter, sans-serif; color: #2A1A1E; background: #FBF8F6">
+  <nav class="side" aria-label="Menu principal" style="width: 260px; flex-shrink: 0; background: #FFFFFF; border-right: 1px solid #EEE3E5; padding: 32px 20px; display: flex; flex-direction: column; gap: 6px; box-sizing: border-box">
+    <div style="font-size: 26px; font-weight: 600; color: #7A1F35; letter-spacing: -0.5px; padding: 0 16px 28px">Iqra<span style="font-weight: 400; color: #8A7479; font-size: 15px; margin-left: 8px">compta</span></div>
+    <a href="#" class="nav">Tableau de bord</a>
+    <a href="#" class="nav">Entrées &amp; sorties</a>
+    <a href="#" class="nav" style="background: #F3E9EB; color: #7A1F35; font-weight: 500">Adhérents</a>
+    <a href="#" class="nav">Chèques</a>
+    <a href="#" class="nav">Calendrier</a>
+    <a href="#" class="nav">Reçus</a>
+    <a href="#" class="nav">Catégories</a>
+  </nav>
+
+  <main style="flex: 1; padding: 40px 48px; box-sizing: border-box; display: flex; flex-direction: column; gap: 24px; max-width: 1180px">
+    <a href="#" style="font-size: 14px; text-decoration: none">← Tous les adhérents</a>
+    <header style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px">
+      <div style="display: flex; align-items: center; gap: 18px">
+        <div aria-hidden="true" style="width: 64px; height: 64px; border-radius: 20px; background: #F3E9EB; color: #7A1F35; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: 600">F</div>
+        <div>
+          <h1 style="margin: 0; font-size: 30px; font-weight: 600; letter-spacing: -0.5px">Famille [NOM]</h1>
+          <p style="margin: 4px 0 0; color: #6B5A5E; font-size: 15px">Adhérente depuis sept. 2025 · [téléphone] · [email]</p>
+        </div>
+      </div>
+      <button type="button" style="padding: 14px 22px; border-radius: 14px; border: none; background: #7A1F35; color: #FFFFFF; font: inherit; font-weight: 500; cursor: pointer">+ Encaisser</button>
+    </header>
+
+    <section class="grid2" style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px">
+      <div class="card"><p style="margin: 0; color: #6B5A5E; font-size: 15px">Total versé cette année</p><p style="margin: 10px 0 0; font-size: 32px; font-weight: 600; color: #2F6B4F">[MONTANT] €</p></div>
+      <div class="card"><p style="margin: 0; color: #6B5A5E; font-size: 15px">Reste à payer</p><p style="margin: 10px 0 0; font-size: 32px; font-weight: 600; color: #7A1F35">[MONTANT] €</p></div>
+      <div class="card"><p style="margin: 0; color: #6B5A5E; font-size: 15px">Inscrits</p><p style="margin: 10px 0 0; font-size: 18px; font-weight: 500">2 enfants · Cours d'arabe</p></div>
+    </section>
+
+    <section class="card">
+      <h2 style="margin: 0 0 6px; font-size: 19px; font-weight: 600">Échéancier des chèques · Cours d'arabe</h2>
+      <p style="margin: 0 0 22px; font-size: 14px; color: #6B5A5E">Paiement en 4 fois</p>
+      <div class="steps" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px">
+        <div style="border-radius: 16px; padding: 20px; background: #E6F1EB"><p style="margin: 0; font-size: 13px; color: #23513B; font-weight: 500">Chèque 1 · Encaissé</p><p style="margin: 8px 0 2px; font-size: 22px; font-weight: 600; color: #23513B">[MONTANT] €</p><p style="margin: 0; font-size: 13px; color: #23513B">5 oct. · n° [N° CHÈQUE]</p></div>
+        <div style="border-radius: 16px; padding: 20px; background: #FBEFD9; border: 2px solid #D9A441"><p style="margin: 0; font-size: 13px; color: #6B4600; font-weight: 500">Chèque 2 · À encaisser</p><p style="margin: 8px 0 2px; font-size: 22px; font-weight: 600; color: #6B4600">[MONTANT] €</p><p style="margin: 0; font-size: 13px; color: #6B4600">23 nov. · n° [N° CHÈQUE]</p></div>
+        <div style="border-radius: 16px; padding: 20px; background: #F5F1F2"><p style="margin: 0; font-size: 13px; color: #5C4A4F; font-weight: 500">Chèque 3 · Prévu</p><p style="margin: 8px 0 2px; font-size: 22px; font-weight: 600">[MONTANT] €</p><p style="margin: 0; font-size: 13px; color: #6B5A5E">5 jan. · n° [N° CHÈQUE]</p></div>
+        <div style="border-radius: 16px; padding: 20px; background: #F5F1F2"><p style="margin: 0; font-size: 13px; color: #5C4A4F; font-weight: 500">Chèque 4 · Prévu</p><p style="margin: 8px 0 2px; font-size: 22px; font-weight: 600">[MONTANT] €</p><p style="margin: 0; font-size: 13px; color: #6B5A5E">5 fév. · n° [N° CHÈQUE]</p></div>
+      </div>
+      <button type="button" style="margin-top: 20px; padding: 12px 20px; border-radius: 12px; border: 1px solid #D9A441; background: #FFFFFF; color: #6B4600; font: inherit; font-weight: 500; cursor: pointer">Marquer le chèque 2 comme encaissé</button>
+    </section>
+
+    <section class="card">
+      <h2 style="margin: 0 0 8px; font-size: 19px; font-weight: 600">Historique des paiements</h2>
+      <div class="row"><span style="width: 90px; color: #6B5A5E">5 oct.</span><span style="flex: 1">Cours d'arabe · Chèque 1/4</span><span style="font-weight: 600; color: #2F6B4F">+ [MONTANT] €</span><a href="#" style="font-size: 14px">Reçu PDF</a></div>
+      <div class="row"><span style="width: 90px; color: #6B5A5E">12 sept.</span><span style="flex: 1">Adhésion 2026-2027 · Espèces</span><span style="font-weight: 600; color: #2F6B4F">+ [MONTANT] €</span><a href="#" style="font-size: 14px">Reçu PDF</a></div>
+      <div class="row"><span style="width: 90px; color: #6B5A5E">2 juin</span><span style="flex: 1">Sortie fin d'année · Espèces</span><span style="font-weight: 600; color: #2F6B4F">+ [MONTANT] €</span><a href="#" style="font-size: 14px">Reçu PDF</a></div>
+    </section>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1100}}'>
+class Component extends DCLogic {
+renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

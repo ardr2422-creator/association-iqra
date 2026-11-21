@@ -1,26 +1,241 @@
 @import "tailwindcss";
 
+/* Thème sombre piloté par la classe `.dark` posée sur <html> par next-themes. */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ------------------------------------------------------------------ */
+/* Jetons de couleur — thème clair (valeurs des maquettes)             */
+/* ------------------------------------------------------------------ */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --page: #fbf8f6;
+  --surface: #ffffff;
+  --line: #eee3e5;
+  --line-strong: #e2d2d6;
+  --divider: #f1e8ea;
+
+  --ink: #2a1a1e;
+  --muted: #6b5a5e;
+  --nav: #5c4a4f;
+  --faint: #8a7479;
+
+  /* Bordeaux : `primary` pour les aplats, `accent` pour le texte et les liens. */
+  --primary: #7a1f35;
+  --primary-hover: #5a1426;
+  --primary-soft: #f3e9eb;
+  --on-primary: #ffffff;
+  --on-primary-muted: #f3d9df;
+  --accent: #7a1f35;
+  --accent-hover: #5a1426;
+
+  /* Entrées (vert), chèques à venir (ambre), retards (rosé), neutre. */
+  --income: #2f6b4f;
+  --income-strong: #23513b;
+  --income-soft: #e6f1eb;
+  --amber: #8a5a00;
+  --amber-strong: #6b4600;
+  --amber-soft: #fbefd9;
+  --amber-line: #d9a441;
+  --late-soft: #f7e1e5;
+  --neutral-soft: #f5f1f2;
+
+  /* Pastilles de catégorie. */
+  --tag-sand: #f1ece4;
+  --tag-sand-ink: #5c4a2f;
+  --tag-violet: #edeaf5;
+  --tag-violet-ink: #3f3566;
+
+  --overlay: rgb(42 26 30 / 0.4);
+  --shadow-float-value: 0 1px 2px rgb(42 26 30 / 0.04), 0 12px 32px -12px rgb(42 26 30 / 0.18);
 }
 
+/* ------------------------------------------------------------------ */
+/* Thème sombre : fond brun chaud, bordeaux éclairci                   */
+/* ------------------------------------------------------------------ */
+.dark {
+  --page: #181113;
+  --surface: #221719;
+  --line: #3a2a2e;
+  --line-strong: #4b373c;
+  --divider: #2f2125;
+
+  --ink: #f5ecee;
+  --muted: #bba9ad;
+  --nav: #cbbabe;
+  --faint: #9a878c;
+
+  --primary: #93294a;
+  --primary-hover: #a93256;
+  --primary-soft: #3d1d27;
+  --on-primary: #ffffff;
+  --on-primary-muted: #f6d5dc;
+  --accent: #efa3b5;
+  --accent-hover: #f7c2ce;
+
+  --income: #86cfa9;
+  --income-strong: #a5e0c1;
+  --income-soft: #1c3529;
+  --amber: #edb95e;
+  --amber-strong: #f4d08f;
+  --amber-soft: #3b2b10;
+  --amber-line: #a97b25;
+  --late-soft: #47202b;
+  --neutral-soft: #2c2023;
+
+  --tag-sand: #352b1b;
+  --tag-sand-ink: #e3cfa8;
+  --tag-violet: #2a2540;
+  --tag-violet-ink: #c9c0f0;
+
+  --overlay: rgb(0 0 0 / 0.6);
+  --shadow-float-value: 0 1px 2px rgb(0 0 0 / 0.4), 0 16px 40px -12px rgb(0 0 0 / 0.7);
+}
+
+/* Les utilitaires Tailwind (bg-surface, text-muted…) lisent ces variables :
+   aucun `dark:` n'est nécessaire dans les composants. */
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-page: var(--page);
+  --color-surface: var(--surface);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-divider: var(--divider);
+
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-nav: var(--nav);
+  --color-faint: var(--faint);
+
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-soft: var(--primary-soft);
+  --color-on-primary: var(--on-primary);
+  --color-on-primary-muted: var(--on-primary-muted);
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+
+  --color-income: var(--income);
+  --color-income-strong: var(--income-strong);
+  --color-income-soft: var(--income-soft);
+  --color-amber: var(--amber);
+  --color-amber-strong: var(--amber-strong);
+  --color-amber-soft: var(--amber-soft);
+  --color-amber-line: var(--amber-line);
+  --color-late-soft: var(--late-soft);
+  --color-neutral-soft: var(--neutral-soft);
+
+  --color-tag-sand: var(--tag-sand);
+  --color-tag-sand-ink: var(--tag-sand-ink);
+  --color-tag-violet: var(--tag-violet);
+  --color-tag-violet-ink: var(--tag-violet-ink);
+
+  --color-overlay: var(--overlay);
+  --shadow-float: var(--shadow-float-value);
+
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@theme {
+  /* En dessous de 900px (comme sur les maquettes), le menu passe en haut. */
+  --breakpoint-desk: 56.25rem;
+
+  --radius-card: 1.25rem; /* 20px */
+  --radius-control: 0.875rem; /* 14px */
+  --radius-field: 0.75rem; /* 12px */
+
+  /* Mouvement : une seule courbe douce, des durées courtes. */
+  --ease-soft: cubic-bezier(0.22, 1, 0.36, 1);
+  --transition-duration-fast: 150ms;
+  --transition-duration-base: 220ms;
+
+  --animate-rise: rise 520ms var(--ease-soft) backwards;
+  --animate-fade: fade 320ms ease-out backwards;
+  --animate-skeleton: fade 240ms ease-out 160ms backwards, skeleton 1.6s ease-in-out 400ms infinite;
+  --animate-spin-slow: spin 0.8s linear infinite;
+
+  @keyframes rise {
+    from {
+      opacity: 0;
+      translate: 0 12px;
+    }
+  }
+  @keyframes fade {
+    from {
+      opacity: 0;
+    }
+  }
+  @keyframes skeleton {
+    50% {
+      opacity: 0.55;
+    }
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* Décalage en cascade : `stagger-2` retarde l'animation de 2 × 70 ms.
+   Pour les listes, poser plutôt `style={{ "--i": index }}` avec `stagger-i`. */
+@utility stagger-* {
+  animation-delay: calc(--value(integer) * 70ms);
+}
+@utility stagger-i {
+  animation-delay: calc(var(--i, 0) * 45ms + var(--stagger-base, 0ms));
+}
+
+@layer base {
+  html {
+    background-color: var(--page);
+    color: var(--ink);
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  button:not(:disabled),
+  [role="button"]:not([aria-disabled="true"]) {
+    cursor: pointer;
+  }
+
+  a {
+    color: var(--accent);
+    transition: color var(--transition-duration-fast) ease-out;
+  }
+  @media (hover: hover) {
+    a:hover {
+      color: var(--accent-hover);
+    }
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  ::selection {
+    background-color: var(--primary-soft);
+    color: var(--ink);
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Changement de thème : fondu enchaîné de toute la page               */
+/* ------------------------------------------------------------------ */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 380ms;
+  animation-timing-function: var(--ease-soft);
+}
+
+/* ------------------------------------------------------------------ */
+/* Accessibilité : pas de mouvement si le système le demande           */
+/* ------------------------------------------------------------------ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-delay: 0ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
 }

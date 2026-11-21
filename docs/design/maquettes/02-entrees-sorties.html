@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Entrées et sorties</title>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;display=swap">
+<style>
+body{margin:0;background:#FBF8F6}
+a{color:#7A1F35}a:hover{color:#5A1426}
+.nav{display:flex;align-items:center;gap:12px;padding:12px 16px;border-radius:12px;color:#5C4A4F;text-decoration:none;font-size:15px}
+.nav:hover{background:#F3E9EB;color:#2A1A1E}
+.card{background:#FFFFFF;border:1px solid #EEE3E5;border-radius:20px;padding:28px}
+.chip{padding:10px 18px;border-radius:999px;border:1px solid #E2D2D6;background:#FFFFFF;color:#5C4A4F;font:inherit;font-size:14px;cursor:pointer}
+th{text-align:left;font-size:13px;font-weight:500;color:#6B5A5E;padding:0 12px 14px}
+td{padding:18px 12px;border-top:1px solid #F1E8EA;font-size:15px}
+@media (max-width:900px){.shell{flex-direction:column}.side{width:auto !important;flex-direction:row !important;flex-wrap:wrap}}
+</style>
+</helmet>
+<div class="shell" style="display: flex; min-height: 980px; font-family: Inter, sans-serif; color: #2A1A1E; background: #FBF8F6">
+  <nav class="side" aria-label="Menu principal" style="width: 260px; flex-shrink: 0; background: #FFFFFF; border-right: 1px solid #EEE3E5; padding: 32px 20px; display: flex; flex-direction: column; gap: 6px; box-sizing: border-box">
+    <div style="font-size: 26px; font-weight: 600; color: #7A1F35; letter-spacing: -0.5px; padding: 0 16px 28px">Iqra<span style="font-weight: 400; color: #8A7479; font-size: 15px; margin-left: 8px">compta</span></div>
+    <a href="#" class="nav">Tableau de bord</a>
+    <a href="#" class="nav" style="background: #F3E9EB; color: #7A1F35; font-weight: 500">Entrées &amp; sorties</a>
+    <a href="#" class="nav">Adhérents</a>
+    <a href="#" class="nav">Chèques</a>
+    <a href="#" class="nav">Calendrier</a>
+    <a href="#" class="nav">Reçus</a>
+    <a href="#" class="nav">Catégories</a>
+  </nav>
+
+  <main style="flex: 1; padding: 40px 48px; box-sizing: border-box; display: flex; flex-direction: column; gap: 24px; max-width: 1180px">
+    <header style="display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 16px">
+      <h1 style="margin: 0; font-size: 32px; font-weight: 600; letter-spacing: -0.5px">Entrées &amp; sorties</h1>
+      <div style="display: flex; gap: 12px">
+        <button type="button" style="padding: 14px 22px; border-radius: 14px; border: 1px solid #E2D2D6; background: #FFFFFF; color: #7A1F35; font: inherit; font-weight: 500; cursor: pointer">+ Dépense</button>
+        <button type="button" style="padding: 14px 22px; border-radius: 14px; border: none; background: #7A1F35; color: #FFFFFF; font: inherit; font-weight: 500; cursor: pointer">+ Encaissement</button>
+      </div>
+    </header>
+
+    <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center">
+      <button type="button" class="chip" style="background: #7A1F35; color: #FFFFFF; border-color: #7A1F35">Tout</button>
+      <button type="button" class="chip">Dons</button>
+      <button type="button" class="chip">Adhésions</button>
+      <button type="button" class="chip">Cours</button>
+      <button type="button" class="chip">Sorties</button>
+      <button type="button" class="chip">Dépenses</button>
+      <div style="flex: 1"></div>
+      <label for="search" style="position: absolute; left: -9999px">Rechercher</label>
+      <input id="search" type="search" placeholder="Rechercher un nom, une catégorie…" style="width: 280px; padding: 12px 16px; border-radius: 14px; border: 1px solid #E2D2D6; background: #FFFFFF; font: inherit; font-size: 14px">
+    </div>
+
+    <section class="card" style="overflow-x: auto">
+      <table style="width: 100%; border-collapse: collapse; min-width: 760px">
+        <thead><tr><th>Date</th><th>Qui</th><th>Catégorie</th><th>Paiement</th><th style="text-align: right">Montant</th><th style="text-align: right">Reçu</th></tr></thead>
+        <tbody>
+          <tr><td>20 nov.</td><td style="font-weight: 500">[Nom famille]</td><td><span style="padding: 5px 12px; border-radius: 999px; background: #F3E9EB; color: #7A1F35; font-size: 13px">Cours d'arabe</span></td><td style="color: #6B5A5E">Chèque 2/4</td><td style="text-align: right; font-weight: 600; color: #2F6B4F">+ [MONTANT] €</td><td style="text-align: right"><a href="#" style="font-size: 14px">PDF</a></td></tr>
+          <tr><td>19 nov.</td><td style="font-weight: 500">[Nom donateur]</td><td><span style="padding: 5px 12px; border-radius: 999px; background: #E6F1EB; color: #23513B; font-size: 13px">Don</span></td><td style="color: #6B5A5E">Virement</td><td style="text-align: right; font-weight: 600; color: #2F6B4F">+ [MONTANT] €</td><td style="text-align: right"><a href="#" style="font-size: 14px">PDF</a></td></tr>
+          <tr><td>18 nov.</td><td style="font-weight: 500">Location minibus</td><td><span style="padding: 5px 12px; border-radius: 999px; background: #F1ECE4; color: #5C4A2F; font-size: 13px">Sortie</span></td><td style="color: #6B5A5E">Espèces</td><td style="text-align: right; font-weight: 600; color: #7A1F35">− [MONTANT] €</td><td style="text-align: right; color: #8A7479; font-size: 14px">—</td></tr>
+          <tr><td>16 nov.</td><td style="font-weight: 500">[Nom famille]</td><td><span style="padding: 5px 12px; border-radius: 999px; background: #EDEAF5; color: #3F3566; font-size: 13px">Adhésion</span></td><td style="color: #6B5A5E">Espèces</td><td style="text-align: right; font-weight: 600; color: #2F6B4F">+ [MONTANT] €</td><td style="text-align: right"><a href="#" style="font-size: 14px">PDF</a></td></tr>
+          <tr><td>15 nov.</td><td style="font-weight: 500">Fournitures soutien scolaire</td><td><span style="padding: 5px 12px; border-radius: 999px; background: #F7E1E5; color: #7A1F35; font-size: 13px">Dépense</span></td><td style="color: #6B5A5E">Carte</td><td style="text-align: right; font-weight: 600; color: #7A1F35">− [MONTANT] €</td><td style="text-align: right; color: #8A7479; font-size: 14px">—</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="card" style="max-width: 620px">
+      <h2 style="margin: 0 0 20px; font-size: 19px; font-weight: 600">Nouvel encaissement</h2>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px">
+        <label style="display: flex; flex-direction: column; gap: 6px; font-size: 14px; color: #5C4A4F">Adhérent<input type="text" placeholder="Rechercher…" style="padding: 12px 14px; border-radius: 12px; border: 1px solid #E2D2D6; font: inherit"></label>
+        <label style="display: flex; flex-direction: column; gap: 6px; font-size: 14px; color: #5C4A4F">Catégorie<select style="padding: 12px 14px; border-radius: 12px; border: 1px solid #E2D2D6; font: inherit; background: #FFFFFF"><option>Cours d'arabe</option></select></label>
+        <label style="display: flex; flex-direction: column; gap: 6px; font-size: 14px; color: #5C4A4F">Montant total<input type="text" placeholder="0,00 €" style="padding: 12px 14px; border-radius: 12px; border: 1px solid #E2D2D6; font: inherit"></label>
+        <label style="display: flex; flex-direction: column; gap: 6px; font-size: 14px; color: #5C4A4F">Moyen de paiement<select style="padding: 12px 14px; border-radius: 12px; border: 1px solid #E2D2D6; font: inherit; background: #FFFFFF"><option>Chèque</option><option>Espèces</option><option>Virement</option></select></label>
+      </div>
+      <p style="margin: 20px 0 10px; font-size: 14px; color: #5C4A4F">Payer en</p>
+      <div style="display: flex; gap: 10px">
+        <button type="button" class="chip">1 fois</button><button type="button" class="chip">2 fois</button><button type="button" class="chip">3 fois</button><button type="button" class="chip" style="background: #7A1F35; color: #FFFFFF; border-color: #7A1F35">4 fois</button>
+      </div>
+      <p style="margin: 12px 0 0; font-size: 13px; color: #6B5A5E">Les 4 dates d'encaissement sont créées et apparaissent dans le calendrier.</p>
+      <button type="button" style="margin-top: 24px; width: 100%; padding: 16px; border-radius: 14px; border: none; background: #7A1F35; color: #FFFFFF; font: inherit; font-weight: 500; cursor: pointer">Enregistrer et générer le reçu</button>
+    </section>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":980}}'>
+class Component extends DCLogic {
+renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

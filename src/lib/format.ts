@@ -67,6 +67,17 @@ const isoDayFormatter = new Intl.DateTimeFormat("en-CA", {
   timeZone: TIME_ZONE,
 });
 
+const monthYearFormatter = new Intl.DateTimeFormat(LOCALE, {
+  month: "long",
+  year: "numeric",
+  timeZone: TIME_ZONE,
+});
+
+/** « novembre 2026 » */
+export function formatMonthYear(date: Date): string {
+  return monthYearFormatter.format(date);
+}
+
 /** « Samedi 21 novembre 2026 » */
 export function formatLongDate(date: Date): string {
   return capitalize(longDateFormatter.format(date));

@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import {
   CartesianGrid,
   Line,
@@ -59,8 +60,46 @@ function ChartTooltip({ active, payload }: TooltipContentProps) {
  * (désactivé automatiquement si le système demande moins de mouvement).
  */
 export function CashflowChart({ data }: { data: CashflowPoint[] }) {
+  const wrapperRef = useRef<HTMLDivElement>(null);
+
+  // Recharts rend ses calques internes atteignables au clavier (sans nom ni
+  // contour utile) : on ne garde que le graphique lui-même dans l'ordre de tabulation.
+  useEffect(() => {
+    const wrapper = wrapperRef.current;
+    if (!wrapper) return;
+    const removeLayerTabStops = () => {
+      wrapper
+        .querySelectorAll('g[class^="recharts-zIndex-layer"]:not([tabindex])')
+        .forEach((layer) => layer.setAttribute("tabindex", "-1"));
+    };
+    removeLayerTabStops();
+    const observer = new MutationObserver(removeLayerTabStops);
+    observer.observe(wrapper, { childList: true, subtree: true });
+    return () => observer.disconnect();
+  }, []);
+
   return (
-    <div className="min-h-[220px] w-full flex-1">
+    <div ref={wrapperRef} className="min-h-[220px] w-full flex-1">
+      {/* Les mêmes chiffres en texte, pour les lecteurs d'écran. */}
+      <table className="sr-only">
+        <caption>Entrées et sorties par mois</caption>
+        <thead>
+          <tr>
+            <th scope="col">Mois</th>
+            <th scope="col">Entrées</th>
+            <th scope="col">Sorties</th>
+          </tr>
+        </thead>
+        <tbody>
+          {data.map((point) => (
+            <tr key={point.monthName}>
+              <th scope="row">{point.monthName}</th>
+              <td>{formatEurosCompact(point.income)}</td>
+              <td>{formatEurosCompact(point.expense)}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
       <LineChart
         responsive
         data={data}
@@ -68,7 +107,7 @@ export function CashflowChart({ data }: { data: CashflowPoint[] }) {
         style={{ width: "100%", height: "100%" }}
         accessibilityLayer
         role="img"
-        aria-label="Courbes des entrées et des sorties par mois"
+        aria-label="Courbes des entrées et des sorties par mois. Flèches gauche et droite pour parcourir les mois."
       >
         <CartesianGrid vertical={false} stroke="var(--divider)" />
         <XAxis

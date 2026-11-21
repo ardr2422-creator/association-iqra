@@ -54,6 +54,10 @@ async function Today() {
   return formatLongDate(new Date());
 }
 
+/** Lien d'en-tête de carte : zone de toucher de 40px sans déplacer le texte. */
+const CARD_LINK =
+  "-my-2.5 inline-flex min-h-10 items-center text-sm underline underline-offset-2";
+
 /** Position dans une liste, pour l'apparition en cascade des lignes. */
 function cascade(index: number, baseMs: number): CSSProperties {
   return { "--i": index, "--stagger-base": `${baseMs}ms` } as CSSProperties;
@@ -72,7 +76,7 @@ async function DashboardContent() {
   }));
 
   const chequesHint = [
-    `dont ${data.chequesThisWeek} cette semaine`,
+    `dont ${data.chequesNext7Days} dans les 7 jours`,
     data.chequesLate > 0 ? `${data.chequesLate} en retard` : null,
   ]
     .filter(Boolean)
@@ -84,7 +88,7 @@ async function DashboardContent() {
         aria-label="Chiffres clés"
         className="grid gap-4 sm:grid-cols-2 xl:grid-cols-[1.3fr_1fr_1fr] xl:gap-5"
       >
-        <Card tone="primary" className="@container animate-rise stagger-1 sm:col-span-2 xl:col-span-1">
+        <Card tone="primary" className="@container animate-rise sm:col-span-2 xl:col-span-1">
           <p className="text-[15px] leading-snug text-on-primary-muted">Solde actuel</p>
           <p className="mb-1 mt-3 text-[clamp(30px,14cqw,44px)] font-semibold leading-[1.2] tracking-[-1px]">
             <CountUp value={data.balanceCents} format="euros" />
@@ -94,18 +98,18 @@ async function DashboardContent() {
           </p>
         </Card>
 
-        <Card className="animate-rise stagger-2">
+        <Card className="@container animate-rise stagger-1">
           <p className="text-[15px] leading-snug text-muted">Chèques à encaisser</p>
-          <p className="mb-1 mt-3 text-[30px] font-semibold leading-[1.2] text-amber desk:text-[36px]">
+          <p className="mb-1 mt-3 whitespace-nowrap text-[clamp(26px,15cqw,36px)] font-semibold leading-[1.2] text-amber">
             <CountUp value={data.chequesToCash} format="integer" />{" "}
             {data.chequesToCash > 1 ? "chèques" : "chèque"}
           </p>
           <p className="text-sm leading-snug text-muted">{chequesHint}</p>
         </Card>
 
-        <Card className="animate-rise stagger-3">
+        <Card className="@container animate-rise stagger-2">
           <p className="text-[15px] leading-snug text-muted">Cours impayés</p>
-          <p className="mb-1 mt-3 text-[30px] font-semibold leading-[1.2] text-accent desk:text-[36px]">
+          <p className="mb-1 mt-3 whitespace-nowrap text-[clamp(26px,15cqw,36px)] font-semibold leading-[1.2] text-accent">
             <CountUp value={data.unpaidFamilies} format="integer" />{" "}
             {data.unpaidFamilies > 1 ? "familles" : "famille"}
           </p>
@@ -116,7 +120,7 @@ async function DashboardContent() {
       </section>
 
       <section className="grid gap-4 xl:grid-cols-[1.4fr_1fr] xl:gap-5">
-        <Card className="flex animate-rise flex-col stagger-3">
+        <Card className="flex animate-rise flex-col stagger-2">
           <div className="mb-5 flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
             <CardTitle>Entrées et sorties</CardTitle>
             <ul className="flex gap-[18px] text-[13px] text-muted" aria-label="Légende">
@@ -137,10 +141,10 @@ async function DashboardContent() {
           </p>
         </Card>
 
-        <Card className="animate-rise stagger-4">
+        <Card className="animate-rise stagger-3">
           <div className="mb-2 flex items-center justify-between gap-4">
             <CardTitle>À encaisser bientôt</CardTitle>
-            <Link href="/calendrier" className="text-sm underline underline-offset-2">
+            <Link href="/calendrier" className={CARD_LINK}>
               Calendrier
             </Link>
           </div>
@@ -151,7 +155,7 @@ async function DashboardContent() {
               return (
                 <li
                   key={cheque.id}
-                  style={cascade(index, 380)}
+                  style={cascade(index, 300)}
                   className="flex animate-rise items-center justify-between gap-3 border-t border-divider py-4 stagger-i"
                 >
                   <div className="min-w-0">
@@ -173,10 +177,10 @@ async function DashboardContent() {
         </Card>
       </section>
 
-      <Card as="section" className="animate-rise stagger-5">
+      <Card as="section" className="animate-rise stagger-4">
         <div className="mb-2 flex items-center justify-between gap-4">
           <CardTitle>Cours impayés</CardTitle>
-          <Link href="/adherents" className="text-sm underline underline-offset-2">
+          <Link href="/adherents" className={CARD_LINK}>
             Voir tout
           </Link>
         </div>
@@ -184,7 +188,7 @@ async function DashboardContent() {
           {data.unpaid.map((item, index) => (
             <li
               key={item.id}
-              style={cascade(index, 480)}
+              style={cascade(index, 380)}
               className="grid animate-rise grid-cols-[1fr_auto] items-baseline gap-x-4 gap-y-0.5 border-t border-divider py-4 stagger-i xl:flex xl:items-center"
             >
               <p className="font-medium xl:flex-1">{item.family}</p>
@@ -203,6 +207,10 @@ async function DashboardContent() {
   );
 }
 
+/**
+ * Blocs d'attente aux dimensions des vraies cartes (mesurées avec les données
+ * d'exemple) : rien ne saute quand le contenu arrive.
+ */
 function DashboardSkeleton() {
   return (
     <>
@@ -210,15 +218,15 @@ function DashboardSkeleton() {
         <span role="status" className="sr-only">
           Chargement des comptes…
         </span>
-        <Skeleton className="h-[160px] rounded-card sm:col-span-2 xl:col-span-1" />
-        <Skeleton className="h-[150px] rounded-card xl:h-[160px]" />
-        <Skeleton className="h-[150px] rounded-card xl:h-[160px]" />
+        <Skeleton className="h-[156px] rounded-card sm:col-span-2 sm:h-[167px] xl:col-span-1" />
+        <Skeleton className="h-[149px] rounded-card sm:h-[157px] xl:h-[167px]" />
+        <Skeleton className="h-[149px] rounded-card sm:h-[157px] xl:h-[167px]" />
       </div>
       <div className="grid gap-4 xl:grid-cols-[1.4fr_1fr] xl:gap-5">
-        <Skeleton className="h-[340px] rounded-card" />
-        <Skeleton className="h-[340px] rounded-card" />
+        <Skeleton className="h-[384px] rounded-card sm:h-[348px] xl:h-[392px]" />
+        <Skeleton className="h-[384px] rounded-card sm:h-[392px]" />
       </div>
-      <Skeleton className="h-[220px] rounded-card" />
+      <Skeleton className="h-[402px] rounded-card xl:h-[263px]" />
     </>
   );
 }

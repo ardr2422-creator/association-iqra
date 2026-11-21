@@ -5,33 +5,42 @@ import { safeNext } from "@/lib/auth/safe-next";
 import { getAuthMode, isAllowedUser } from "@/lib/supabase/env";
 import { createClient } from "@/lib/supabase/server";
 
-export type LoginState = { error: string; email: string } | undefined;
+/** `attempt` change à chaque refus : le message est ré-annoncé même s'il est identique. */
+export type LoginState = { error: string; email: string; attempt: number } | undefined;
 
 const GENERIC_ERROR = "Email ou mot de passe incorrect.";
 
-export async function login(_previous: LoginState, formData: FormData): Promise<LoginState> {
+export async function login(previous: LoginState, formData: FormData): Promise<LoginState> {
   const email = String(formData.get("email") ?? "").trim().toLowerCase();
   const password = String(formData.get("password") ?? "");
+  const refuse = (error: string): LoginState => ({
+    error,
+    email,
+    attempt: (previous?.attempt ?? 0) + 1,
+  });
 
   if (!email || !password || email.length > 254 || password.length > 256) {
-    return { error: GENERIC_ERROR, email };
+    return refuse(GENERIC_ERROR);
   }
   if (getAuthMode() !== "supabase") {
-    return { error: "L'authentification n'est pas configurée.", email };
+    return refuse("L'authentification n'est pas configurée.");
   }
 
   const supabase = await createClient();
   const { data, error } = await supabase.auth.signInWithPassword({ email, password });
   if (error) {
     if (error.status === 429) {
-      return { error: "Trop de tentatives. Réessayez dans quelques minutes.", email };
+      return refuse("Trop de tentatives. Réessayez dans quelques minutes.");
     }
-    if (error.status === 400) return { error: GENERIC_ERROR, email };
-    return { error: "Connexion impossible pour le moment. Réessayez dans un instant.", email };
+    if (error.status === 400) return refuse(GENERIC_ERROR);
+    return refuse("Connexion impossible pour le moment. Réessayez dans un instant.");
   }
   if (!isAllowedUser(data.user.id)) {
+    // Visible uniquement dans les journaux du serveur, pour diagnostiquer un
+    // AUTH_ALLOWED_USER_ID mal renseigné. Le visiteur, lui, voit le message générique.
+    console.warn("[auth] connexion refusée : ce compte n'est pas le compte autorisé", data.user.id);
     await supabase.auth.signOut({ scope: "local" });
-    return { error: GENERIC_ERROR, email };
+    return refuse(GENERIC_ERROR);
   }
 
   // `redirect` lève une exception interne : ne jamais l'entourer d'un try/catch.

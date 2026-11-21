@@ -13,6 +13,6 @@ export default defineConfig({
   datasource: {
     // Utilisé uniquement par les commandes `prisma` (migrations, studio).
     // DIRECT_URL = connexion directe à Postgres ; l'application, elle, lit DATABASE_URL.
-    url: process.env.DIRECT_URL ?? process.env.DATABASE_URL,
+    url: process.env.DIRECT_URL || process.env.DATABASE_URL,
   },
 });

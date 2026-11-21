@@ -48,7 +48,16 @@ export function LoginForm() {
   }, []);
 
   return (
-    <form ref={formRef} action={formAction} className="mt-6 flex flex-col gap-4">
+    <form
+      ref={formRef}
+      action={formAction}
+      // Le bouton reste focalisable pendant l'envoi (aria-disabled) : on bloque
+      // simplement un second envoi.
+      onSubmit={(event) => {
+        if (pending) event.preventDefault();
+      }}
+      className="mt-6 flex flex-col gap-4"
+    >
       <Suspense fallback={null}>
         <NextField />
       </Suspense>
@@ -80,6 +89,7 @@ export function LoginForm() {
           type="password"
           autoComplete="current-password"
           required
+          aria-invalid={state?.error ? true : undefined}
           aria-describedby={state?.error ? errorId : undefined}
           className={FIELD}
         />
@@ -87,7 +97,11 @@ export function LoginForm() {
 
       <div role="alert" id={errorId}>
         {state?.error ? (
-          <p className="flex animate-fade items-start gap-2.5 rounded-field bg-late-soft px-3.5 py-3 text-sm text-accent">
+          <p
+            // Une nouvelle clé à chaque refus : le message est relu et réapparaît.
+            key={state.attempt}
+            className="flex animate-fade items-start gap-2.5 rounded-field bg-late-soft px-3.5 py-3 text-sm text-accent"
+          >
             <AlertIcon size={18} className="mt-px shrink-0" />
             {state.error}
           </p>
@@ -96,7 +110,7 @@ export function LoginForm() {
 
       <button
         type="submit"
-        disabled={pending}
+        aria-disabled={pending}
         className={buttonClasses("primary", "lg", "mt-1 w-full")}
       >
         {pending ? (

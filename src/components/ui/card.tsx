@@ -18,7 +18,7 @@ export function Card<T extends ElementType = "div">({
   return (
     <Component
       className={clsx(
-        "rounded-card border p-6 desk:p-7",
+        "min-w-0 rounded-card border p-6 desk:p-7",
         tone === "primary"
           ? "border-primary bg-primary text-on-primary"
           : "border-line bg-surface",

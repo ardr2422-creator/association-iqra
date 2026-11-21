@@ -8,6 +8,9 @@ import { motion } from "motion/react";
 import { SettingsIcon } from "@/components/icons";
 import { isActivePath, NAV_ITEMS, SETTINGS_HREF, type NavItem } from "@/lib/navigation";
 
+/** Durée du glissement de la pastille (ressort ci-dessous), avec une petite marge. */
+const PILL_SETTLE_MS = 380;
+
 const SETTINGS_ITEM: NavItem = { href: SETTINGS_HREF, label: "Paramètres", icon: SettingsIcon };
 
 type NavListProps = {
@@ -85,20 +88,26 @@ export function ActiveNavList() {
   const firstRun = useRef(true);
 
   useEffect(() => {
-    const row = markerRef.current?.parentElement;
-    const active = row?.querySelector<HTMLElement>('a[aria-current="page"]');
+    const centre = (behavior: ScrollBehavior) => {
+      const row = markerRef.current?.parentElement;
+      const active = row?.querySelector<HTMLElement>('a[aria-current="page"]');
+      if (!row || !active || row.scrollWidth <= row.clientWidth) return;
+      const rowBox = row.getBoundingClientRect();
+      const activeBox = active.getBoundingClientRect();
+      const offset = activeBox.left - rowBox.left - (rowBox.width - activeBox.width) / 2;
+      row.scrollTo({ left: Math.max(0, row.scrollLeft + offset), behavior });
+    };
+
     const instant = firstRun.current;
     firstRun.current = false;
-    if (!row || !active || row.scrollWidth <= row.clientWidth) return;
-
-    const rowBox = row.getBoundingClientRect();
-    const activeBox = active.getBoundingClientRect();
-    const offset = activeBox.left - rowBox.left - (rowBox.width - activeBox.width) / 2;
-    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    row.scrollTo({
-      left: Math.max(0, row.scrollLeft + offset),
-      behavior: instant || reduceMotion ? "auto" : "smooth",
-    });
+    if (instant || window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      centre("auto");
+      return;
+    }
+    // On laisse d'abord la pastille finir de glisser : deux mouvements
+    // simultanés (pastille + défilement) la feraient hésiter.
+    const timer = window.setTimeout(() => centre("smooth"), PILL_SETTLE_MS);
+    return () => window.clearTimeout(timer);
   }, [pathname]);
 
   return (

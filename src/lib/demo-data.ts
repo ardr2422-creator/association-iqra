@@ -4,7 +4,7 @@
  * Étape 1 : la mise en page et les animations sont branchées sur ces valeurs.
  * Elles seront remplacées par les vraies requêtes à l'étape « tableau de bord ».
  * Les dates sont calculées par rapport à aujourd'hui pour que les badges
- * « En retard » et « cette semaine » restent cohérents.
+ * « En retard » et « dans les 7 jours » restent cohérents.
  */
 import { parseIsoDay, toParisIsoDay } from "@/lib/format";
 
@@ -39,7 +39,8 @@ export type DashboardData = {
   today: string;
   balanceCents: number;
   chequesToCash: number;
-  chequesThisWeek: number;
+  /** Échéances d'aujourd'hui à J+6 inclus. */
+  chequesNext7Days: number;
   chequesLate: number;
   unpaidFamilies: number;
   unpaidCents: number;
@@ -96,13 +97,13 @@ export function getDemoDashboard(now: Date): DashboardData {
     { id: "un-3", family: "Famille Benali", course: "Cours d'anglais · 1 enfant", progress: "1 versement sur 4 reçu", dueCents: 27_000 },
   ];
 
-  const weekEnd = addDays(today, 7);
+  const inSevenDays = addDays(today, 7);
 
   return {
     today,
     balanceCents: 1_284_650,
     chequesToCash: 7,
-    chequesThisWeek: upcoming.filter((c) => c.dueDay >= today && c.dueDay <= weekEnd).length,
+    chequesNext7Days: upcoming.filter((c) => c.dueDay >= today && c.dueDay < inSevenDays).length,
     chequesLate: upcoming.filter((c) => c.dueDay < today).length,
     unpaidFamilies: unpaid.length,
     unpaidCents: unpaid.reduce((sum, item) => sum + item.dueCents, 0),

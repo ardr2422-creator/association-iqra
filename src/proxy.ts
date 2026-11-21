@@ -23,7 +23,7 @@ export async function proxy(request: NextRequest) {
   const mode = getAuthMode();
   if (mode === "misconfigured") {
     return new NextResponse(
-      "Iqra Compta : l'authentification n'est pas configurée (variables Supabase manquantes).",
+      "Iqra Compta : l'authentification n'est pas configurée. Vérifiez les variables NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY et AUTH_ALLOWED_USER_ID.",
       { status: 503, headers: { "cache-control": "no-store", "content-type": "text/plain; charset=utf-8" } },
     );
   }
@@ -53,7 +53,9 @@ export async function proxy(request: NextRequest) {
         },
       },
     });
-    // Rafraîchit le jeton si besoin, puis vérifie sa signature.
+    // Premier filtre, rapide : rafraîchit le jeton si besoin et vérifie sa signature.
+    // La validation complète auprès de Supabase est faite avant chaque accès aux
+    // données (voir `requireUser`).
     const { data, error } = await supabase.auth.getClaims();
     authenticated = !error && !!data && isAllowedUser(data.claims.sub);
   } catch {

@@ -12,11 +12,11 @@ const eurosFormatter = new Intl.NumberFormat(LOCALE, {
   maximumFractionDigits: 2,
 });
 
-const eurosCompactFormatter = new Intl.NumberFormat(LOCALE, {
+const eurosWholeFormatter = new Intl.NumberFormat(LOCALE, {
   style: "currency",
   currency: "EUR",
   minimumFractionDigits: 0,
-  maximumFractionDigits: 2,
+  maximumFractionDigits: 0,
 });
 
 /** 123456 → « 1 234,56 € ». Les montants sont stockés en centimes. */
@@ -24,9 +24,12 @@ export function formatEuros(cents: number): string {
   return eurosFormatter.format(cents / 100);
 }
 
-/** Comme `formatEuros`, sans les centimes quand ils sont nuls : « 1 234 € ». */
+/**
+ * Comme `formatEuros`, sans les centimes quand le montant est rond :
+ * « 1 234 € », mais « 12,50 € » (jamais « 12,5 € »).
+ */
 export function formatEurosCompact(cents: number): string {
-  return eurosCompactFormatter.format(cents / 100);
+  return cents % 100 === 0 ? eurosWholeFormatter.format(cents / 100) : formatEuros(cents);
 }
 
 /** « + 1 234,56 € » ou « − 1 234,56 € » (vrai signe moins typographique). */

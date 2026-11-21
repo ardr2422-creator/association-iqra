@@ -21,7 +21,7 @@ export function Sidebar() {
       <div className="flex items-center justify-between gap-3 desk:px-4 desk:pb-7">
         <Link
           href="/"
-          className="rounded-md text-[26px] font-semibold leading-none tracking-[-0.5px] text-accent no-underline"
+          className="-my-2 rounded-md py-2 text-[26px] font-semibold leading-none tracking-[-0.5px] text-accent no-underline"
         >
           Iqra
           <span className="ml-2 text-[15px] font-normal tracking-normal text-faint">compta</span>
@@ -35,7 +35,7 @@ export function Sidebar() {
       <motion.nav
         layoutScroll
         aria-label="Menu principal"
-        className="-mx-4 flex gap-1.5 overflow-x-auto px-4 [scrollbar-width:none] desk:mx-0 desk:flex-1 desk:flex-col desk:overflow-visible desk:px-0 [&::-webkit-scrollbar]:hidden"
+        className="-mx-4 -my-1 flex gap-1.5 overflow-x-auto px-4 py-1 [scrollbar-width:none] desk:m-0 desk:flex-1 desk:flex-col desk:overflow-visible desk:p-0 [&::-webkit-scrollbar]:hidden"
       >
         <Suspense fallback={<NavList pathname={null} />}>
           <ActiveNavList />

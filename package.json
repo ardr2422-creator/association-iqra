@@ -11,7 +11,9 @@
     "postinstall": "prisma generate",
     "db:migrate": "prisma migrate dev",
     "db:deploy": "prisma migrate deploy",
-    "db:studio": "prisma studio"
+    "db:studio": "prisma studio",
+    "db:check": "node scripts/check-db-security.mjs",
+    "vercel-build": "prisma migrate deploy && node scripts/check-db-security.mjs && next build"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.10.1",

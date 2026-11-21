@@ -46,8 +46,10 @@ export function CountUp({ value, format, className }: CountUpProps) {
 
   return (
     <span className={className}>
-      <span className="sr-only">{render(value, format)}</span>
-      <motion.span aria-hidden="true" className="tabular-nums">
+      {/* Valeur finale, présente dès le HTML du serveur : lue par les lecteurs
+          d'écran, et affichée telle quelle si le système demande moins de mouvement. */}
+      <span className="sr-only tabular-nums motion-reduce:not-sr-only">{render(value, format)}</span>
+      <motion.span aria-hidden="true" className="tabular-nums motion-reduce:hidden">
         {text}
       </motion.span>
     </span>

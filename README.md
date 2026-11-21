@@ -5,6 +5,20 @@ soutien scolaire, sorties et événements). Un seul compte : la trésorière.
 
 Le brief d'origine et les maquettes validées sont dans [`docs/design/`](docs/design/).
 
+## Aperçu
+
+| Tableau de bord | Mode sombre |
+| --- | --- |
+| ![Tableau de bord en mode clair](docs/captures/tableau-de-bord.webp) | ![Tableau de bord en mode sombre](docs/captures/tableau-de-bord-sombre.webp) |
+
+| Catégories | Ajout d'une catégorie |
+| --- | --- |
+| ![Page des catégories](docs/captures/categories.webp) | ![Fenêtre d'ajout d'une catégorie](docs/captures/categories-fenetre.webp) |
+
+Sur téléphone, le menu passe en haut :
+
+![Tableau de bord clair, tableau de bord sombre et catégories sur téléphone](docs/captures/telephone.webp)
+
 ## Où en est le projet
 
 | Étape | Contenu | État |

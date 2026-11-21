@@ -47,5 +47,8 @@
   },
   "overrides": {
     "effect": "3.22.5"
+  },
+  "engines": {
+    "node": "22.x"
   }
 }

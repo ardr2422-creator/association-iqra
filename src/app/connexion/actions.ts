@@ -71,6 +71,9 @@ export async function login(previous: LoginState, formData: FormData): Promise<L
 
   const { data, error } = await supabase.auth.signInWithPassword({ email, password });
   if (error) {
+    // Le motif exact (mot de passe faux, email non confirmé, connexion par email
+    // désactivée…) n'est visible que dans les journaux du serveur, jamais à l'écran.
+    console.warn("[auth] connexion refusée par Supabase :", error.code ?? error.status ?? "motif inconnu");
     if (error.status === 429) return refuse(TOO_MANY);
     if (error.status !== 400) return refuse(UNAVAILABLE);
     await recordLoginFailure(throttle).catch(logThrottleError);

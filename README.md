@@ -39,16 +39,15 @@ Sur téléphone, le menu passe en haut :
 - **Supabase** : projet `iqra-compta`, région Paris, relié à Vercel par l'onglet
   *Storage* (les adresses de connexion sont posées automatiquement, pour la
   production uniquement).
-- **Reste à faire pour pouvoir se connecter** :
-  1. Supabase → *Authentication → Users → Add user* : créer le compte de la
-     trésorière (cocher *Auto Confirm User*), puis copier son *User UID*.
-  2. Vercel → *Settings → Environment Variables* : remplacer la valeur provisoire
-     de `AUTH_ALLOWED_USER_ID` par cet UID, puis *Deployments → Redeploy*.
-  3. Supabase → *Authentication → Sign In / Providers* : décocher
-     *Allow new users to sign up*.
-
-  Tant que l'étape 2 n'est pas faite, la page de connexion s'affiche mais
-  personne ne peut entrer.
+- **Compte autorisé** : un seul compte Supabase peut entrer, celui dont
+  l'identifiant (*User UID*) est dans la variable Vercel `AUTH_ALLOWED_USER_ID`.
+  Tout autre compte, même avec un mot de passe juste, reçoit le même message
+  « Email ou mot de passe incorrect ».
+- **Si le compte est supprimé puis recréé**, son identifiant change : il faut
+  remettre le nouveau *User UID* dans `AUTH_ALLOWED_USER_ID` (Vercel → *Settings →
+  Environment Variables*), puis *Deployments → Redeploy*.
+- **En cas de refus inexpliqué** : Vercel → *Logs* affiche le motif réel (lignes
+  `[auth]`), et Supabase → *Logs → Auth* montre si le mot de passe a été accepté.
 
 ## Mettre en ligne (Vercel + Supabase)
 

@@ -7,17 +7,27 @@ Le brief d'origine et les maquettes validées sont dans [`docs/design/`](docs/de
 
 ## Aperçu
 
+Visite complète pas à pas : **[tutoriel en mode démonstration](docs/TUTORIEL.md)**.
+
 | Tableau de bord | Mode sombre |
 | --- | --- |
 | ![Tableau de bord en mode clair](docs/captures/tableau-de-bord.webp) | ![Tableau de bord en mode sombre](docs/captures/tableau-de-bord-sombre.webp) |
 
-| Catégories | Ajout d'une catégorie |
+| Fiche adhérent | Encaissement en 4 fois |
 | --- | --- |
-| ![Page des catégories](docs/captures/categories.webp) | ![Fenêtre d'ajout d'une catégorie](docs/captures/categories-fenetre.webp) |
+| ![Fiche d'une famille avec son échéancier](docs/captures/fiche-adherent.webp) | ![Fenêtre « Nouvel encaissement »](docs/captures/encaissement.webp) |
+
+| Chèques | Calendrier |
+| --- | --- |
+| ![Chèques à encaisser](docs/captures/cheques.webp) | ![Calendrier du mois](docs/captures/calendrier.webp) |
+
+| Entrées & sorties | Reçus |
+| --- | --- |
+| ![Tableau des mouvements](docs/captures/mouvements.webp) | ![Liste des reçus](docs/captures/recus.webp) |
 
 Sur téléphone, le menu passe en haut :
 
-![Tableau de bord clair, tableau de bord sombre et catégories sur téléphone](docs/captures/telephone.webp)
+![Tableau de bord, fiche adhérent, chèques et calendrier sur téléphone](docs/captures/telephone.webp)
 
 ## Où en est le projet
 

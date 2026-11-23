@@ -99,6 +99,8 @@ model Transaction {
   categoryId   String            @map("category_id")
   memberId     String?           @map("member_id")
   label        String
+  /// Payeur d'une entrée quand ce n'est pas un adhérent (donateur de passage, par exemple).
+  payerName    String?           @map("payer_name")
   amountCents  Int               @map("amount_cents")
   method       PaymentMethod
   status       TransactionStatus @default(COMPLETED)
@@ -181,6 +183,9 @@ model Receipt {
   payerName     String   @map("payer_name")
   payerAddress  String?  @map("payer_address")
   pdfUrl        String?  @map("pdf_url")
+  /// Tout ce qui est imprimé sur le reçu, figé à l'émission : un reçu déjà
+  /// remis ne change plus, même si l'adhérent ou les paramètres sont modifiés.
+  snapshot      Json
   createdAt     DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
 
   transaction Transaction @relation(fields: [transactionId], references: [id], onDelete: Restrict)
@@ -212,6 +217,10 @@ model Settings {
   reminderEmail         String?  @map("reminder_email")
   /// Reçu fiscal pour les dons : pas encore confirmé par l'association.
   fiscalReceiptsEnabled Boolean  @default(false) @map("fiscal_receipts_enabled")
+  /// Solde du compte au moment où l'association commence à utiliser l'application.
+  openingBalanceCents   Int      @default(0) @map("opening_balance_cents")
+  /// Vrai tant que la base contient les données de démonstration (noms fictifs).
+  demoMode              Boolean  @default(false) @map("demo_mode")
   updatedAt             DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
 
   @@map("settings")

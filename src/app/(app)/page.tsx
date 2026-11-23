@@ -10,8 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { ButtonLink } from "@/components/ui/button";
 import { Card, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { requireUser } from "@/lib/auth/dal";
-import { getDemoDashboard } from "@/lib/demo-data";
+import { getDashboard } from "@/lib/data/dashboard";
 import {
   formatDayMonth,
   formatEurosCompact,
@@ -20,6 +19,7 @@ import {
   formatShortDay,
   parseIsoDay,
 } from "@/lib/format";
+import { memberHref, NEW_EXPENSE_HREF, newIncomeHref } from "@/lib/routes";
 
 export const metadata: Metadata = { title: "Tableau de bord" };
 
@@ -35,10 +35,10 @@ export default function DashboardPage() {
         title="Bonjour, voici l'état des comptes"
         actions={
           <>
-            <ButtonLink href="/mouvements?nouveau=depense" variant="secondary">
+            <ButtonLink href={NEW_EXPENSE_HREF} variant="secondary">
               + Dépense
             </ButtonLink>
-            <ButtonLink href="/mouvements?nouveau=encaissement">+ Encaissement</ButtonLink>
+            <ButtonLink href={newIncomeHref()}>+ Encaissement</ButtonLink>
           </>
         }
       />
@@ -64,9 +64,7 @@ function cascade(index: number, baseMs: number): CSSProperties {
 }
 
 async function DashboardContent() {
-  await requireUser();
-  // Étape 1 : données d'exemple. Les vraies requêtes arrivent à l'étape « tableau de bord ».
-  const data = getDemoDashboard(new Date());
+  const data = await getDashboard();
 
   const chartData = data.monthly.map((entry) => ({
     label: entry.label,
@@ -84,6 +82,25 @@ async function DashboardContent() {
 
   return (
     <>
+      {data.empty ? (
+        <Card as="section" className="animate-rise border-dashed">
+          <CardTitle>Bienvenue dans Iqra Compta</CardTitle>
+          <p className="mt-1.5 max-w-[640px] text-[15px] text-muted">
+            Rien n&apos;est encore enregistré. Commencez par ajouter un adhérent ou un premier
+            mouvement. Pour découvrir l&apos;application sans risque, vous pouvez aussi charger des
+            données de démonstration (familles fictives), puis les effacer en un clic.
+          </p>
+          <div className="mt-4 flex flex-wrap gap-3">
+            <ButtonLink href="/adherents" size="sm">
+              Ajouter un adhérent
+            </ButtonLink>
+            <ButtonLink href="/parametres#demonstration" variant="secondary" size="sm">
+              Charger la démonstration
+            </ButtonLink>
+          </div>
+        </Card>
+      ) : null}
+
       <section
         aria-label="Chiffres clés"
         className="grid gap-4 sm:grid-cols-2 xl:grid-cols-[1.3fr_1fr_1fr] xl:gap-5"
@@ -135,10 +152,7 @@ async function DashboardContent() {
             </ul>
           </div>
           <CashflowChart data={chartData} />
-          <p className="mt-2 text-xs text-muted">
-            Courbes d&apos;exemple, remplacées par les vrais chiffres dès que les mouvements seront
-            saisis.
-          </p>
+          <p className="mt-2 text-xs text-muted">Montants réellement encaissés et dépensés, par mois.</p>
         </Card>
 
         <Card className="animate-rise stagger-3">
@@ -148,6 +162,11 @@ async function DashboardContent() {
               Calendrier
             </Link>
           </div>
+          {data.upcoming.length === 0 ? (
+            <p className="border-t border-divider py-4 text-[15px] text-muted">
+              Aucun chèque en attente d&apos;encaissement.
+            </p>
+          ) : null}
           <ul>
             {data.upcoming.map((cheque, index) => {
               const late = cheque.dueDay < data.today;
@@ -159,7 +178,11 @@ async function DashboardContent() {
                   className="flex animate-rise items-center justify-between gap-3 border-t border-divider py-4 stagger-i"
                 >
                   <div className="min-w-0">
-                    <p className="truncate font-medium leading-snug">{cheque.family}</p>
+                    <p className="truncate font-medium leading-snug">
+                      <Link href={memberHref(cheque.memberId)} className="text-ink no-underline hover:text-accent">
+                        {cheque.family}
+                      </Link>
+                    </p>
                     <p className="mt-0.5 text-[13px] leading-snug text-muted">{cheque.detail}</p>
                   </div>
                   {late ? (
@@ -184,6 +207,11 @@ async function DashboardContent() {
             Voir tout
           </Link>
         </div>
+        {data.unpaid.length === 0 ? (
+          <p className="border-t border-divider py-4 text-[15px] text-muted">
+            Tous les paiements enregistrés sont réglés.
+          </p>
+        ) : null}
         <ul>
           {data.unpaid.map((item, index) => (
             <li
@@ -191,7 +219,11 @@ async function DashboardContent() {
               style={cascade(index, 380)}
               className="grid animate-rise grid-cols-[1fr_auto] items-baseline gap-x-4 gap-y-0.5 border-t border-divider py-4 stagger-i xl:flex xl:items-center"
             >
-              <p className="font-medium xl:flex-1">{item.family}</p>
+              <p className="font-medium xl:flex-1">
+                <Link href={memberHref(item.memberId)} className="text-ink no-underline hover:text-accent">
+                  {item.family}
+                </Link>
+              </p>
               <p className="order-last col-span-2 text-[15px] text-muted xl:order-none xl:flex-1 xl:text-base">
                 {item.course}
               </p>

@@ -12,6 +12,7 @@
     "db:migrate": "prisma migrate dev",
     "db:deploy": "prisma migrate deploy",
     "db:studio": "prisma studio",
+    "test:domain": "node --conditions=react-server --import tsx tests/domain/money.test.ts",
     "db:check": "tsx scripts/check-db-security.ts",
     "vercel-build": "if [ \"$VERCEL_ENV\" = \"production\" ]; then tsx scripts/check-env.ts && prisma migrate deploy && tsx scripts/check-db-security.ts; fi && next build",
     "test:e2e": "bash tests/e2e/run.sh"
@@ -19,6 +20,7 @@
   "dependencies": {
     "@prisma/adapter-pg": "^7.10.1",
     "@prisma/client": "^7.10.1",
+    "@react-pdf/renderer": "^4.9.0",
     "@supabase/ssr": "^0.12.7",
     "@supabase/supabase-js": "^2.119.2",
     "clsx": "^2.1.1",
@@ -29,6 +31,7 @@
     "react": "19.3.0",
     "react-dom": "19.3.0",
     "recharts": "^3.11.0",
+    "server-only": "^0.0.1",
     "zod": "^4.6.7"
   },
   "devDependencies": {

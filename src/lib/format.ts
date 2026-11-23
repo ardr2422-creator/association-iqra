@@ -106,6 +106,40 @@ export function parseIsoDay(isoDay: string): Date {
   return new Date(`${isoDay}T12:00:00Z`);
 }
 
+const dayMonthYearFormatter = new Intl.DateTimeFormat(LOCALE, {
+  day: "numeric",
+  month: "short",
+  year: "numeric",
+  timeZone: TIME_ZONE,
+});
+
+const fullDayFormatter = new Intl.DateTimeFormat(LOCALE, {
+  day: "numeric",
+  month: "long",
+  year: "numeric",
+  timeZone: TIME_ZONE,
+});
+
+/** Jour civil « 2026-11-23 » → « 23 nov. » */
+export function formatDay(isoDay: string): string {
+  return dayMonthFormatter.format(parseIsoDay(isoDay));
+}
+
+/** Jour civil « 2026-11-23 » → « 23 nov. 2026 » */
+export function formatDayWithYear(isoDay: string): string {
+  return dayMonthYearFormatter.format(parseIsoDay(isoDay));
+}
+
+/** Jour civil « 2026-11-23 » → « 23 novembre 2026 » (reçus, textes officiels). */
+export function formatFullDay(isoDay: string): string {
+  return fullDayFormatter.format(parseIsoDay(isoDay));
+}
+
+/** Mois « 2026-11 » → « Novembre 2026 » */
+export function formatMonthTitle(month: string): string {
+  return capitalize(monthYearFormatter.format(parseIsoDay(`${month}-01`)));
+}
+
 /** Pluriel français simple : `plural(2, "chèque")` → « 2 chèques ». */
 export function plural(count: number, singular: string, pluralForm?: string): string {
   const word = Math.abs(count) > 1 ? (pluralForm ?? `${singular}s`) : singular;

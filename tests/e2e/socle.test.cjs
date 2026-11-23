@@ -24,6 +24,11 @@ async function samplePill(page, ms = 700) {
 const linkRect = (page, name) => page.getByRole('navigation', { name: 'Menu principal' }).getByRole('link', { name, exact: true }).evaluate((el) => { const r = el.getBoundingClientRect(); return { x: Math.round(r.x), y: Math.round(r.y), w: Math.round(r.width), h: Math.round(r.height) }; });
 
 (async () => {
+  // Le tableau de bord est testé sur les données de démonstration, avec un solde connu.
+  const { seedDemo, sql } = require('./helpers.cjs');
+  seedDemo();
+  sql("update settings set opening_balance_cents = 1284650 - (select coalesce(sum(case when type = 'INCOME' then amount_cents else -amount_cents end), 0) from transactions where status = 'COMPLETED')");
+
   const browser = await chromium.launch();
   const consoleIssues = [];
   const watch = (page, tag) => {

@@ -16,6 +16,12 @@ import {
 const PUBLIC_FILES = new Set(["/icon.svg"]);
 
 /**
+ * Rappel quotidien des chèques, appelé par Vercel Cron : pas de session
+ * possible, la route vérifie elle-même le secret CRON_SECRET.
+ */
+const CRON_PATH = "/api/cron/rappels";
+
+/**
  * Toutes les pages sont protégées : sans session valide, on est renvoyé vers
  * la page de connexion. Le proxy rafraîchit aussi la session Supabase.
  * En cas de doute (erreur réseau, configuration absente), l'accès est refusé.
@@ -34,6 +40,8 @@ export async function proxy(request: NextRequest) {
       { status: 503, headers: { "cache-control": "no-store", "content-type": "text/plain; charset=utf-8" } },
     );
   }
+  if (pathname === CRON_PATH && request.method === "GET") return NextResponse.next();
+
   if (mode === "demo") {
     return isLogin && isRead
       ? NextResponse.redirect(new URL("/", request.url))

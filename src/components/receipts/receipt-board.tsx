@@ -105,7 +105,7 @@ export function ReceiptBoard({ receipts, today }: { receipts: ReceiptListItem[];
                   key={receipt.id}
                   style={cascade(index)}
                   className={clsx(
-                    "grid animate-rise grid-cols-[1fr_auto] items-center gap-x-4 gap-y-1 border-t border-divider px-1 py-4 stagger-i",
+                    "grid animate-rise grid-cols-[minmax(0,1fr)_auto] items-center gap-x-4 gap-y-1 border-t border-divider px-1 py-4 stagger-i",
                     "@3xl:grid-cols-[104px_116px_minmax(0,1.1fr)_minmax(0,1.3fr)_112px_196px]",
                   )}
                 >
@@ -128,13 +128,13 @@ export function ReceiptBoard({ receipts, today }: { receipts: ReceiptListItem[];
                   <p className="col-span-2 min-w-0 truncate text-[15px] text-muted @3xl:col-span-1">
                     {receipt.designation}
                   </p>
-                  <p className="flex items-center gap-2 @3xl:justify-end">
+                  <p className="col-span-2 flex items-center gap-2 @3xl:col-span-1 @3xl:justify-end">
                     <span className={clsx("font-semibold tabular-nums", receipt.cancelled ? "text-muted line-through" : "text-income")}>
                       {formatEuros(receipt.amountCents)}
                     </span>
                     {receipt.cancelled ? <Badge tone="neutral">Annulé</Badge> : null}
                   </p>
-                  <p className="flex justify-end gap-1">
+                  <p className="col-span-2 flex gap-1 @3xl:col-span-1 @3xl:justify-end">
                     <a
                       href={receiptPdfHref(receipt.id)}
                       target="_blank"

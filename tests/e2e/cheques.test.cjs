@@ -123,7 +123,7 @@ const relevant = (issues) => issues.filter((issue) => !/Failed to load resource.
   // ------------------------------------------------------------------ recherche (dans la page)
   const planned = rows("select m.name, i.cheque_number, i.bank from installments i join payment_plans p on p.id = i.plan_id join members m on m.id = p.member_id where i.status = 'PLANNED'");
   const search = page.getByRole('searchbox', { name: 'Rechercher un chèque' });
-  const visibleRows = () => page.locator('li').count();
+  const visibleRows = () => page.locator('main li:visible').count();
   const settle = async (expected) => { for (let i = 0; i < 20 && (await visibleRows()) !== expected; i += 1) await page.waitForTimeout(100); return visibleRows(); };
 
   await search.fill('rahmani');
@@ -143,7 +143,7 @@ const relevant = (issues) => issues.filter((issue) => !/Failed to load resource.
   check('search by bank', (await settle(byBank)) === byBank && byBank >= 1);
   await search.fill("%' or 1=1 --");
   await page.getByText("Aucun résultat pour « %' or 1=1 -- »").waitFor();
-  check('a search with no match says so (the text is never sent to the database) and offers to clear it', (await visibleRows()) === 0 && await page.getByRole('button', { name: 'Effacer la recherche' }).isVisible());
+  check('a search with no match says so (the text is never sent to the database) and offers to clear it', (await settle(0)) === 0 && await page.getByRole('button', { name: 'Effacer la recherche' }).isVisible());
   await page.getByRole('button', { name: 'Effacer la recherche' }).click();
   check('clearing the search brings every row back', (await settle(initial.planned[0])) === initial.planned[0] && (await search.inputValue()) === '');
   await tab(page, 'Rejetés').click();
@@ -202,7 +202,7 @@ const relevant = (issues) => issues.filter((issue) => !/Failed to load resource.
   check('cashing: the cheque is first in « Encaissés » with its badge, a green amount and a receipt link (new tab)',
     (await text(firstCashed)).includes(`n° ${target[1]}`) && (await text(firstCashed)).includes('Encaissé') && (await text(firstCashed)).includes(`+ ${euros(Number(target[2]))}`)
       && (await receiptLink.getAttribute('href')) === `/recus/${cashedRow[6]}/pdf` && (await receiptLink.getAttribute('target')) === '_blank'
-      && (await page.locator('li').count()) === stats().cashed,
+      && (await page.locator('main li:visible').count()) === stats().cashed,
     await text(firstCashed));
 
   // La fenêtre restée ouverte croit encore le chèque en attente : pas de double encaissement.
@@ -229,7 +229,7 @@ const relevant = (issues) => issues.filter((issue) => !/Failed to load resource.
   check('rejecting: the row leaves « En attente », cards and chips follow the database', afterReject === '', afterReject);
   await tab(page, 'Rejetés').click();
   await row(page, bounced[1]).waitFor();
-  check('the rejected cheque is listed in « Rejetés » with its badge', (await text(row(page, bounced[1]))).includes('Rejeté') && (await page.locator('li').count()) === stats().rejected[0]);
+  check('the rejected cheque is listed in « Rejetés » with its badge', (await text(row(page, bounced[1]))).includes('Rejeté') && (await page.locator('main li:visible').count()) === stats().rejected[0]);
   await page.screenshot({ path: path.join(OUT, 'cheques-rejetes.png'), fullPage: true });
 
   await row(page, bounced[1]).getByRole('button', { name: /^Remettre à encaisser/ }).click();
@@ -267,7 +267,7 @@ const relevant = (issues) => issues.filter((issue) => !/Failed to load resource.
   const afterBounce = await summaryMatchesDatabase(page);
   await tab(page, 'Rejetés').click();
   await row(page, old[1]).waitFor();
-  check('rejecting a cashed cheque: it moves from « Encaissés » to « Rejetés »', afterBounce === '' && (await page.locator('li').count()) === stats().rejected[0], afterBounce);
+  check('rejecting a cashed cheque: it moves from « Encaissés » to « Rejetés »', afterBounce === '' && (await page.locator('main li:visible').count()) === stats().rejected[0], afterBounce);
 
   // ------------------------------------------------------------------ thème sombre, retour sur la page
   await tab(page, 'En attente').click();
@@ -279,7 +279,7 @@ const relevant = (issues) => issues.filter((issue) => !/Failed to load resource.
   await page.getByRole('link', { name: 'Chèques' }).click();
   await page.getByRole('heading', { name: 'Chèques', level: 1 }).waitFor();
   const back = await summaryMatchesDatabase(page);
-  check('leaving and coming back: the page is intact', back === '' && (await page.locator('li').count()) === stats().planned[0] && (await openDialog(page).count()) === 0, back);
+  check('leaving and coming back: the page is intact', back === '' && (await page.locator('main li:visible').count()) === stats().planned[0] && (await openDialog(page).count()) === 0, back);
   check('no console error on the page', relevant(issues).length === 0, issues.join(' | '));
 
   // ------------------------------------------------------------------ téléphone

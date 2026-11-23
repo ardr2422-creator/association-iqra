@@ -8,6 +8,8 @@ type DialogProps = {
   onClose: () => void;
   title: string;
   description?: ReactNode;
+  /** Largeur maximale : 480px par défaut, 640px pour les formulaires à deux colonnes. */
+  size?: "md" | "lg";
   children: ReactNode;
 };
 
@@ -19,7 +21,7 @@ type DialogProps = {
  * Le composant reste monté quand il est fermé, pour que l'animation de
  * fermeture puisse se jouer.
  */
-export function Dialog({ open, onClose, title, description, children }: DialogProps) {
+export function Dialog({ open, onClose, title, description, size = "md", children }: DialogProps) {
   const ref = useRef<HTMLDialogElement>(null);
   const titleId = useId();
   const descriptionId = useId();
@@ -54,7 +56,7 @@ export function Dialog({ open, onClose, title, description, children }: DialogPr
         // Clic sur le fond assombri (l'élément <dialog> lui-même).
         if (event.target === event.currentTarget) onClose();
       }}
-      className="modal m-auto w-[calc(100%-2rem)] max-w-[480px] rounded-card border border-line bg-surface p-0 text-ink shadow-float"
+      className={`modal m-auto w-[calc(100%-2rem)] ${size === "lg" ? "max-w-[640px]" : "max-w-[480px]"} rounded-card border border-line bg-surface p-0 text-ink shadow-float`}
     >
       <div className="p-6 desk:p-7">
         <div className="flex items-start justify-between gap-4">

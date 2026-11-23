@@ -74,12 +74,36 @@ Sécurité (données confidentielles — exigence forte de l'utilisateur) :
 - Ne jamais afficher au visiteur un message d'erreur technique ; journaliser côté
   serveur (`console.error`) et renvoyer un message générique.
 
+Argent (encaissements, dépenses, chèques, reçus) — étapes 3 à 9 :
+
+- Lectures : `src/lib/data/*` ; formes envoyées aux pages : `src/lib/views.ts`
+  (jours en `AAAA-MM-JJ`, montants en centimes).
+- Écritures : uniquement par `src/lib/services/money.ts`, appelé depuis une action
+  serveur via `runMoney` (`src/lib/services/run.ts`) : transaction + verrou
+  `iqra:money`, `DomainError` → message lisible. Ne jamais écrire une transaction,
+  une échéance ou un reçu à la main ailleurs.
+- Un encaissement lié à un adhérent crée toujours un `PaymentPlan` (1 à 4
+  échéances) ; un chèque prévu n'est PAS une transaction tant qu'il n'est pas
+  encaissé. Le solde = solde de départ + transactions `COMPLETED`.
+- Reçu : numéro sans trou (`receipt_counters`), contenu figé dans
+  `receipts.snapshot` ; le PDF se construit à partir de ce contenu seul.
+- On n'efface rien : annulation (`CANCELLED`) ou archivage. Seule exception : la
+  fin du mode démonstration (`clearDemoData`), refusée hors démonstration.
+- Dates : `todayIsoDay()` après un `await` lié à la requête ; `toDbDay` /
+  `fromDbDay` pour les colonnes `date` (`src/lib/days.ts`).
+- Gestes sur une échéance (encaisser, modifier, rejeter) : le hook partagé
+  `useInstallmentActions` (`src/components/installments/`).
+- `/api/cron/rappels` est la seule adresse sans session : protégée par
+  `CRON_SECRET`, elle ne renvoie jamais de donnée.
+- Tests : `npm run test:domain` (règles comptables, base locale) en plus des
+  tests de bout en bout ; `tests/e2e/helpers.cjs` (`wipe`, `seedDemo`, `login`).
+
 Interface des formulaires : fenêtre `Dialog` (`src/components/ui/dialog.tsx`,
 élément natif animé en CSS), champs `FIELD_CLASSES`, erreurs dans un
 `role="alert"`, bouton d'envoi en `aria-disabled` pendant l'envoi. Listes qui
 changent : `AnimatePresence` + hauteur animée (voir `category-board.tsx`).
 
 Vérifier avant de livrer : `npm run typecheck`, `npm run lint`, `npm run build`,
-puis `npm run test:e2e` (faux Supabase Auth + Postgres local ; démarrer Postgres
+`npm run test:domain`, puis `npm run test:e2e` (faux Supabase Auth + Postgres local ; démarrer Postgres
 avec `pg_ctlcluster 16 main start` et créer la base si besoin, voir
 `tests/e2e/run.sh`). Ajouter un fichier de test par étape.

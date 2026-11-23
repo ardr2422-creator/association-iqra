@@ -25,12 +25,75 @@ Sur téléphone, le menu passe en haut :
 | --- | --- | --- |
 | 1 | Socle : Next.js, thème clair/sombre, connexion, menu, animations | ✅ fait |
 | 2 | Catégories (ajout, modification, suppression ou archivage) | ✅ fait |
-| 3 | Adhérents et fiche adhérent | à venir |
-| 4 | Encaissements, dépenses, échéancier de chèques | à venir |
-| 5 | Tableau de bord branché sur les vraies données | à venir (la page existe, avec des données d'exemple) |
-| 6 | Reçus PDF | à venir |
-| 7 | Calendrier | à venir |
-| 8 | Rappels par email | à venir |
+| 3 | Adhérents et fiche adhérent (échéancier, historique, reçus) | ✅ fait |
+| 4 | Encaissements en 1 à 4 fois, dépenses, échéancier de chèques | ✅ fait |
+| 5 | Tableau de bord branché sur les vraies données | ✅ fait |
+| 6 | Reçus PDF numérotés (`2026-0001`…), re-téléchargeables | ✅ fait |
+| 7 | Calendrier des encaissements | ✅ fait |
+| 8 | Rappels de chèques par email | ✅ fait (à activer : voir « Rappels par email ») |
+| 9 | Paramètres de l'association, données de démonstration | ✅ fait |
+
+## Découvrir l'application avec des données fictives
+
+Sur une base vide, **Paramètres → Démonstration → « Charger les données de
+démonstration »** remplit l'application avec 11 familles fictives, leurs
+encaissements, des chèques en retard, à encaisser ou prévus, un chèque rejeté, des
+dépenses et tous les reçus correspondants. Un bandeau « Mode démonstration »
+reste affiché pendant ce temps.
+
+Pour commencer la vraie comptabilité : **« Terminer la démonstration »** efface
+tous les adhérents, mouvements, chèques et reçus (il faut saisir le mot `EFFACER`
+pour confirmer). Les catégories et les informations de l'association sont
+conservées, et la numérotation des reçus repart à `0001`.
+
+## Règles de gestion appliquées
+
+- **Le solde** = solde de départ (Paramètres) + entrées encaissées − dépenses. Un
+  chèque seulement prévu n'y entre pas ; il y entre le jour où il est marqué
+  « encaissé ».
+- **Paiement en plusieurs fois** (4 au maximum) : le premier versement est
+  encaissé tout de suite (ou non, au choix), les suivants deviennent des
+  échéances avec leur date, leur numéro de chèque et leur banque.
+- **Statuts d'un chèque** : *prévu* → *à encaisser* (dans les 7 jours, « en
+  retard » si la date est passée) → *encaissé* ; ou *rejeté*, qu'on peut remettre
+  à encaisser avec un chèque de remplacement.
+- **Chaque encaissement crée un reçu** numéroté sans trou (`2026-0001`,
+  `2026-0002`…). Le contenu d'un reçu est figé à l'émission : modifier ensuite
+  l'adhérent ou les paramètres ne change pas un reçu déjà remis.
+- **Rien n'est effacé** : un mouvement saisi par erreur est *annulé* (il reste
+  visible, barré, et sort du solde ; son reçu est marqué « annulé »). Un adhérent
+  ou une catégorie déjà utilisés sont *archivés*.
+- **Reçu fiscal pour les dons** : option visible mais désactivée dans les
+  Paramètres, en attente de confirmation par l'association.
+
+## Rappels par email
+
+Chaque matin (vers 7 h ou 8 h, heure de Paris), Vercel appelle l'application ;
+s'il y a des chèques à encaisser dans les 3 jours ou en retard, un email
+récapitulatif part à l'adresse indiquée dans **Paramètres → Rappels de chèques**.
+Tant que les réglages ci-dessous ne sont pas faits, aucun email n'est envoyé (la
+page Paramètres affiche « Non configurés ») — le reste de l'application
+fonctionne normalement.
+
+1. Créez un compte sur [resend.com](https://resend.com) et une clé d'envoi
+   (*API Keys → Create API Key*, permission *Sending access*).
+2. Dans Vercel → *Settings → Environment Variables* (environnement *Production*),
+   ajoutez :
+   - `RESEND_API_KEY` : la clé créée à l'instant ;
+   - `CRON_SECRET` : une longue valeur aléatoire (au moins 16 caractères) — elle
+     empêche quiconque d'autre de déclencher l'envoi ;
+   - `REMINDER_FROM` (facultatif) : l'expéditeur, par exemple
+     `Iqra Compta <rappels@votre-domaine.fr>`, une fois votre domaine vérifié chez
+     Resend. Sans cela, l'adresse de test de Resend est utilisée : elle n'écrit
+     qu'à l'adresse email de votre propre compte Resend.
+3. *Deployments → Redeploy*, puis renseignez l'adresse des rappels dans les
+   Paramètres de l'application.
+4. Vérification : Vercel → *Settings → Cron Jobs* liste `/api/cron/rappels` ; le
+   bouton *Run* le déclenche tout de suite et *Logs* montre le résultat
+   (« Rappel envoyé », « Aucun chèque à rappeler »…).
+
+L'email contient le nom des familles, la date et le montant des chèques
+concernés : il transite par Resend, prestataire d'envoi.
 
 ## Projet en ligne
 
@@ -137,25 +200,32 @@ sans mot de passe ; il n'existe qu'en développement et est ignoré en productio
 | `npm run db:deploy` | Applique les migrations (production) |
 | `npm run db:check` | Vérifie que la base est verrouillée (RLS, droits) |
 | `npm run db:studio` | Ouvre un explorateur de la base |
+| `npm run test:domain` | Tests des règles comptables sur une base locale (solde, échéances, reçus) |
 | `npm run test:e2e` | Tests complets dans un vrai navigateur (voir `tests/e2e/run.sh`) |
 
 ## Organisation du code
 
 ```
-docs/design/            Brief et maquettes d'origine
-prisma/                 Modèle de données et migrations
-scripts/                Contrôle de sécurité de la base
-tests/e2e/              Tests de bout en bout (navigateur piloté)
-src/proxy.ts            Protège toutes les pages (redirige vers /connexion)
-src/app/connexion/      Page de connexion
-src/app/(app)/          Pages de l'application (menu + contenu)
-src/components/shell/   Menu, bascule clair/sombre, déconnexion
-src/components/ui/      Boutons, cartes, pastilles, blocs d'attente
-src/components/motion/  Compteur animé
-src/lib/auth/           Vérification de la session
-src/lib/data/           Lecture des données (une fonction = une vérification de session)
-src/lib/format.ts       Euros et dates en français
-src/app/globals.css     Couleurs (clair et sombre) et animations
+docs/design/              Brief et maquettes d'origine
+prisma/                   Modèle de données et migrations
+scripts/                  Contrôles de sécurité (base, configuration, actions serveur)
+tests/domain/             Tests des règles comptables
+tests/e2e/                Tests de bout en bout (navigateur piloté)
+src/proxy.ts              Protège toutes les pages (redirige vers /connexion)
+src/app/connexion/        Page de connexion
+src/app/(app)/            Pages de l'application ; chaque dossier a ses `actions.ts`
+src/app/api/cron/rappels/ Rappel quotidien des chèques (protégé par un secret)
+src/components/           Interface : menu, composants communs, composants par page
+src/lib/auth/             Vérification de la session
+src/lib/data/             Lectures (une fonction = une vérification de session)
+src/lib/services/         Écritures comptables : encaissements, échéances, reçus,
+                          rappels, données de démonstration
+src/lib/validation.ts     Contrôle de tout ce qui vient du navigateur (zod)
+src/lib/payments.ts       Règles communes : moyens de paiement, statuts, partage
+src/lib/days.ts           Dates « jour seul » (AAAA-MM-JJ, heure de Paris)
+src/lib/amount-words.ts   Montant en toutes lettres pour les reçus
+src/lib/format.ts         Euros et dates en français
+src/app/globals.css       Couleurs (clair et sombre) et animations
 ```
 
 ## Style et animations

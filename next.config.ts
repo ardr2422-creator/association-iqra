@@ -43,7 +43,16 @@ const nextConfig: NextConfig = {
   partialPrefetching: true,
   poweredByHeader: false,
   async headers() {
-    return [{ source: "/(.*)", headers: securityHeaders }];
+    return [
+      { source: "/(.*)", headers: securityHeaders },
+      // Le reçu PDF est affiché par le lecteur intégré du navigateur, que la règle
+      // `object-src 'none'` peut bloquer. Un PDF n'exécute rien dans la page : il
+      // garde l'interdiction d'être affiché dans un cadre (et `nosniff`).
+      {
+        source: "/recus/:id/pdf",
+        headers: [{ key: "Content-Security-Policy", value: "frame-ancestors 'none'" }],
+      },
+    ];
   },
   turbopack: {
     rules: {

@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Iqra compta — charte de marque</title>
+<style>
+  :root { --page:#FBF8F6; --surface:#fff; --line:#EEE3E5; --line-strong:#E2D2D6; --divider:#F1E8EA; --ink:#2A1A1E; --muted:#6B5A5E; --nav:#5C4A4F; --faint:#8A7479; --primary:#7A1F35; --primary-hover:#5A1426; --primary-soft:#F3E9EB; --income:#2F6B4F; --income-strong:#23513B; --income-soft:#E6F1EB; --amber:#8A5A00; --amber-strong:#6B4600; --amber-soft:#FBEFD9; --amber-line:#D9A441; --late-soft:#F7E1E5; --neutral-soft:#F5F1F2; }
+  * { box-sizing: border-box; margin: 0; }
+  body { font-family: Inter, sans-serif; color: var(--ink); background: #e9e3e1; }
+  .board { width: 1600px; height: 1000px; background: var(--page); padding: 80px 96px; display: flex; flex-direction: column; gap: 36px; break-after: page; overflow: hidden; position: relative; }
+  .eyebrow { font-size: 15px; font-weight: 500; color: var(--primary); letter-spacing: 1.5px; text-transform: uppercase; }
+  h1 { font-size: 44px; font-weight: 600; letter-spacing: -1px; }
+  h2 { font-size: 19px; font-weight: 600; }
+  p.lead { font-size: 18px; color: var(--muted); max-width: 900px; line-height: 1.55; }
+  .card { background: var(--surface); border: 1px solid var(--line); border-radius: 20px; padding: 28px; }
+  .grid { display: grid; gap: 24px; }
+  .foot { position: absolute; left: 96px; right: 96px; bottom: 36px; display: flex; justify-content: space-between; font-size: 13px; color: var(--faint); }
+  .wm { font-weight: 600; color: var(--primary); letter-spacing: -0.5px; }
+  .wm span { font-weight: 400; color: var(--faint); margin-left: .3em; font-size: .58em; letter-spacing: 0; }
+  /* couverture */
+  .cover { background: var(--primary); color: #fff; justify-content: center; }
+  .cover .wm { color: #fff; font-size: 140px; } .cover .wm span { color: #F3D9DF; }
+  .cover p { font-size: 24px; color: #F3D9DF; max-width: 760px; line-height: 1.5; }
+  .cover .foot { color: #F3D9DF; }
+  /* couleurs */
+  .sw { border-radius: 16px; border: 1px solid var(--line); overflow: hidden; background: var(--surface); }
+  .sw i { display: block; height: 96px; }
+  .sw div { padding: 12px 14px; font-size: 13px; line-height: 1.5; color: var(--muted); }
+  .sw b { display: block; font-size: 14px; color: var(--ink); font-weight: 600; }
+  .dark { background: #181113; color: #F5ECEE; }
+  .dark .sw { background: #221719; border-color: #3A2A2E; } .dark .sw b { color: #F5ECEE; } .dark .sw div { color: #BBA9AD; }
+  .dark .eyebrow { color: #EFA3B5; } .dark p.lead { color: #BBA9AD; } .dark .foot { color: #9A878C; }
+  /* typo */
+  .type-row { display: grid; grid-template-columns: 260px 1fr; align-items: baseline; padding: 18px 0; border-top: 1px solid var(--divider); }
+  .type-row small { font-size: 13px; color: var(--muted); line-height: 1.5; }
+  /* composants */
+  .btn { display: inline-flex; align-items: center; padding: 13px 22px; border-radius: 14px; font: 500 16px Inter; border: 1px solid transparent; }
+  .btn.p { background: var(--primary); color: #fff; } .btn.s { background: #fff; border-color: var(--line-strong); color: var(--primary); } .btn.g { color: var(--nav); }
+  .chip { display: inline-block; padding: 10px 18px; border-radius: 999px; border: 1px solid var(--line-strong); background: #fff; color: var(--nav); font-size: 14px; }
+  .chip.on { background: var(--primary); border-color: var(--primary); color: #fff; }
+  .badge { display: inline-block; padding: 6px 12px; border-radius: 999px; font-size: 13px; font-weight: 500; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+  .field { border: 1px solid var(--line-strong); border-radius: 12px; padding: 12px 14px; font-size: 16px; color: var(--faint); background: #fff; }
+  .field.focus { border-color: var(--primary); box-shadow: 0 0 0 4px var(--primary-soft); color: var(--ink); }
+  .step { border-radius: 16px; padding: 20px; }
+  .step p { font-size: 13px; font-weight: 500; } .step strong { display: block; font-size: 22px; font-weight: 600; margin: 8px 0 2px; } .step small { font-size: 13px; }
+  /* écrans */
+  .shot { border-radius: 16px; overflow: hidden; border: 1px solid var(--line); box-shadow: 0 1px 2px rgb(42 26 30 / .04), 0 12px 32px -12px rgb(42 26 30 / .18); background: #fff; }
+  .shot img { display: block; width: 100%; }
+  .cap { font-size: 14px; color: var(--muted); margin-top: 10px; }
+  .rule { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  .do, .dont { border-radius: 16px; padding: 22px 24px; font-size: 15px; line-height: 1.6; }
+  .do { background: var(--income-soft); color: var(--income-strong); } .dont { background: var(--late-soft); color: var(--primary); }
+  .do b, .dont b { display: block; margin-bottom: 6px; }
+  .curve { font-family: ui-monospace, monospace; font-size: 15px; }
+</style>
+</head>
+<body>
+
+<section class="board cover">
+  <p class="eyebrow" style="color:#F3D9DF">Charte de marque · 2026</p>
+  <div class="wm">Iqra<span>compta</span></div>
+  <p>La comptabilité de l’association Iqra : chaleureuse, aérée, rassurante. Ce document réunit le nom, les couleurs, la typographie, les composants et le mouvement de l’application.</p>
+  <div class="foot"><span>Association Iqra — cours d’anglais, d’arabe, soutien scolaire, sorties</span><span>1 / 8</span></div>
+</section>
+
+<section class="board">
+  <p class="eyebrow">01 · Le nom</p>
+  <h1>Pas de logo : le nom suffit</h1>
+  <p class="lead">L’identité tient dans le mot « Iqra » en bordeaux, suivi de « compta » en gris rosé, plus léger et plus petit. Ni pictogramme ni motif décoratif.</p>
+  <div class="grid" style="grid-template-columns: 1fr 1fr; flex: 1">
+    <div class="card" style="display:flex;align-items:center;justify-content:center"><div class="wm" style="font-size:96px">Iqra<span>compta</span></div></div>
+    <div class="card" style="display:flex;align-items:center;justify-content:center;background:#181113;border-color:#3A2A2E"><div class="wm" style="font-size:96px;color:#EFA3B5">Iqra<span style="color:#9A878C">compta</span></div></div>
+  </div>
+  <div class="rule">
+    <div class="do"><b>À faire</b>Inter Semi Bold pour « Iqra », Regular pour « compta » à 58 % de la taille. Laisser autour un espace au moins égal à la hauteur du « I ». Bordeaux sur fond clair, rose clair sur fond sombre.</div>
+    <div class="dont"><b>À éviter</b>Ajouter une icône, un dégradé, une ombre ou un motif. Déformer le mot, changer sa couleur hors palette, ou le placer sur une photo chargée.</div>
+  </div>
+  <div class="foot"><span>Iqra compta — charte de marque</span><span>2 / 8</span></div>
+</section>
+
+<section class="board">
+  <p class="eyebrow">02 · Couleurs · thème clair</p>
+  <h1>Bordeaux, crème et des tons doux</h1>
+  <p class="lead">Le bordeaux porte l’identité et les actions principales. Le vert dit « argent reçu », l’ambre « chèque à venir », le rose « retard ». Les fonds sont chauds, jamais gris froid.</p>
+  <div class="grid" style="grid-template-columns: repeat(6, 1fr)">
+    <div class="sw"><i style="background:#7A1F35"></i><div><b>Bordeaux</b>#7A1F35 · aplats, liens</div></div>
+    <div class="sw"><i style="background:#5A1426"></i><div><b>Bordeaux survol</b>#5A1426</div></div>
+    <div class="sw"><i style="background:#F3E9EB"></i><div><b>Bordeaux doux</b>#F3E9EB · menu actif</div></div>
+    <div class="sw"><i style="background:#FBF8F6"></i><div><b>Fond de page</b>#FBF8F6</div></div>
+    <div class="sw"><i style="background:#FFFFFF"></i><div><b>Carte</b>#FFFFFF</div></div>
+    <div class="sw"><i style="background:#EEE3E5"></i><div><b>Bordure</b>#EEE3E5</div></div>
+    <div class="sw"><i style="background:#2A1A1E"></i><div><b>Texte</b>#2A1A1E</div></div>
+    <div class="sw"><i style="background:#6B5A5E"></i><div><b>Texte secondaire</b>#6B5A5E</div></div>
+    <div class="sw"><i style="background:#2F6B4F"></i><div><b>Entrées</b>#2F6B4F · fond #E6F1EB</div></div>
+    <div class="sw"><i style="background:#FBEFD9;box-shadow:inset 0 0 0 3px #D9A441"></i><div><b>Chèque à venir</b>#FBEFD9 · texte #6B4600</div></div>
+    <div class="sw"><i style="background:#F7E1E5"></i><div><b>Retard</b>#F7E1E5 · texte bordeaux</div></div>
+    <div class="sw"><i style="background:linear-gradient(90deg,#F1ECE4 50%,#EDEAF5 50%)"></i><div><b>Pastilles</b>sable #F1ECE4 · violet #EDEAF5</div></div>
+  </div>
+  <div class="foot"><span>Iqra compta — charte de marque</span><span>3 / 8</span></div>
+</section>
+
+<section class="board dark">
+  <p class="eyebrow">03 · Couleurs · thème sombre</p>
+  <h1>Un sombre chaud, un bordeaux éclairci</h1>
+  <p class="lead">Le mode sombre garde la même chaleur : fond brun profond, bordeaux plus lumineux pour rester lisible, couleurs d’état adoucies. Chaque couleur a son équivalent, sous le même nom.</p>
+  <div class="grid" style="grid-template-columns: repeat(6, 1fr)">
+    <div class="sw"><i style="background:#93294A"></i><div><b>Bordeaux</b>#93294A · aplats</div></div>
+    <div class="sw"><i style="background:#EFA3B5"></i><div><b>Bordeaux texte</b>#EFA3B5 · liens</div></div>
+    <div class="sw"><i style="background:#3D1D27"></i><div><b>Bordeaux doux</b>#3D1D27</div></div>
+    <div class="sw"><i style="background:#181113;box-shadow:inset 0 0 0 1px #3A2A2E"></i><div><b>Fond de page</b>#181113</div></div>
+    <div class="sw"><i style="background:#221719;box-shadow:inset 0 0 0 1px #3A2A2E"></i><div><b>Carte</b>#221719</div></div>
+    <div class="sw"><i style="background:#3A2A2E"></i><div><b>Bordure</b>#3A2A2E</div></div>
+    <div class="sw"><i style="background:#F5ECEE"></i><div><b>Texte</b>#F5ECEE</div></div>
+    <div class="sw"><i style="background:#BBA9AD"></i><div><b>Texte secondaire</b>#BBA9AD</div></div>
+    <div class="sw"><i style="background:#86CFA9"></i><div><b>Entrées</b>#86CFA9 · fond #1C3529</div></div>
+    <div class="sw"><i style="background:#3B2B10;box-shadow:inset 0 0 0 3px #A97B25"></i><div><b>Chèque à venir</b>#3B2B10 · texte #F4D08F</div></div>
+    <div class="sw"><i style="background:#47202B"></i><div><b>Retard</b>#47202B</div></div>
+    <div class="sw"><i style="background:linear-gradient(90deg,#352B1B 50%,#2A2540 50%)"></i><div><b>Pastilles</b>#352B1B · #2A2540</div></div>
+  </div>
+  <div class="foot"><span>Iqra compta — charte de marque</span><span>4 / 8</span></div>
+</section>
+
+<section class="board">
+  <p class="eyebrow">04 · Typographie</p>
+  <h1>Inter, en trois graisses</h1>
+  <p class="lead">Une seule famille, Inter : Regular pour lire, Medium pour les pastilles et boutons, Semi Bold pour les titres et les montants. Les chiffres sont alignés (chiffres tabulaires) dans les tableaux.</p>
+  <div class="card" style="padding: 8px 32px">
+    <div class="type-row" style="border-top:0"><small>Chiffre clé<br>44 · Semi Bold · −1</small><span style="font-size:44px;font-weight:600;letter-spacing:-1px">12 846,50 €</span></div>
+    <div class="type-row"><small>Titre de page<br>32 · Semi Bold · −0,5</small><span style="font-size:32px;font-weight:600;letter-spacing:-.5px">Bonjour, voici l’état des comptes</span></div>
+    <div class="type-row"><small>Titre de carte<br>19 · Semi Bold</small><span style="font-size:19px;font-weight:600">Échéancier des chèques · Cours d’arabe</span></div>
+    <div class="type-row"><small>Texte<br>16 · Regular · 150 %</small><span style="font-size:16px">Le solde ne compte que les montants réellement encaissés.</span></div>
+    <div class="type-row"><small>Texte secondaire<br>15 · Regular · gris</small><span style="font-size:15px;color:var(--muted)">Chèque 2/4 · Cours d’arabe 2026-2027 · n° 4512321</span></div>
+    <div class="type-row"><small>Pastille<br>13 · Medium</small><span><span class="badge" style="background:var(--amber-soft);color:var(--amber-strong)">À encaisser</span></span></div>
+  </div>
+  <div class="foot"><span>Iqra compta — charte de marque</span><span>5 / 8</span></div>
+</section>
+
+<section class="board">
+  <p class="eyebrow">05 · Composants</p>
+  <h1>Grosses cartes arrondies, contrôles doux</h1>
+  <p class="lead">Cartes blanches au rayon de 20 px, bordure fine. Boutons à 14 px de rayon, champs à 12 px avec un halo bordeaux au focus. Pastilles entièrement arrondies.</p>
+  <div class="grid" style="grid-template-columns: 1fr 1fr; flex:1">
+    <div class="card" style="display:flex;flex-direction:column;gap:22px">
+      <h2>Boutons et filtres</h2>
+      <div class="row"><span class="btn p">+ Encaissement</span><span class="btn s">+ Dépense</span><span class="btn g">Annuler</span></div>
+      <div class="row"><span class="chip on">Tout</span><span class="chip">Dons</span><span class="chip">Adhésions</span><span class="chip">Cours</span><span class="chip">4 fois</span></div>
+      <h2>Statuts</h2>
+      <div class="row"><span class="badge" style="background:var(--neutral-soft);color:var(--nav)">Prévu</span><span class="badge" style="background:var(--amber-soft);color:var(--amber-strong)">À encaisser</span><span class="badge" style="background:var(--income-soft);color:var(--income-strong)">Encaissé</span><span class="badge" style="background:var(--late-soft);color:var(--primary)">En retard</span><span class="badge" style="background:var(--late-soft);color:var(--primary)">Rejeté</span></div>
+      <h2>Champs</h2>
+      <div class="row" style="flex-wrap:nowrap"><span class="field" style="flex:1">0,00 €</span><span class="field focus" style="flex:1">Famille Haddad</span></div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:24px">
+      <div class="grid" style="grid-template-columns:1.3fr 1fr">
+        <div class="card" style="background:var(--primary);border-color:var(--primary);color:#fff"><p style="font-size:15px;color:#F3D9DF">Solde actuel</p><p style="font-size:40px;font-weight:600;letter-spacing:-1px;margin:10px 0 4px">12 846,50 €</p><p style="font-size:14px;color:#F3D9DF">Caisse + banque</p></div>
+        <div class="card"><p style="font-size:15px;color:var(--muted)">Chèques à encaisser</p><p style="font-size:34px;font-weight:600;color:var(--amber);margin:10px 0 4px">7 chèques</p><p style="font-size:14px;color:var(--muted)">dont 3 cette semaine</p></div>
+      </div>
+      <div class="card">
+        <h2 style="margin-bottom:16px">Échéancier · Cours d’arabe</h2>
+        <div class="grid" style="grid-template-columns:repeat(4,1fr);gap:12px">
+          <div class="step" style="background:var(--income-soft);color:var(--income-strong)"><p>Chèque 1 · Encaissé</p><strong>120 €</strong><small>5 oct.</small></div>
+          <div class="step" style="background:var(--amber-soft);color:var(--amber-strong);border:2px solid var(--amber-line)"><p>Chèque 2 · À encaisser</p><strong>120 €</strong><small>23 nov.</small></div>
+          <div class="step" style="background:var(--neutral-soft);color:var(--nav)"><p>Chèque 3 · Prévu</p><strong style="color:var(--ink)">120 €</strong><small>5 janv.</small></div>
+          <div class="step" style="background:var(--neutral-soft);color:var(--nav)"><p>Chèque 4 · Prévu</p><strong style="color:var(--ink)">120 €</strong><small>5 févr.</small></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="foot"><span>Iqra compta — charte de marque</span><span>6 / 8</span></div>
+</section>
+
+<section class="board">
+  <p class="eyebrow">06 · Écrans</p>
+  <h1>L’application, page par page</h1>
+  <div class="grid" style="grid-template-columns: repeat(3, 1fr)">
+    <div><div class="shot"><img src="../captures/tableau-de-bord.webp" alt=""></div><p class="cap">Tableau de bord</p></div>
+    <div><div class="shot"><img src="../captures/fiche-adherent.webp" alt=""></div><p class="cap">Fiche adhérent</p></div>
+    <div><div class="shot"><img src="../captures/encaissement.webp" alt=""></div><p class="cap">Encaissement en 4 fois</p></div>
+    <div><div class="shot"><img src="../captures/cheques.webp" alt=""></div><p class="cap">Chèques</p></div>
+    <div><div class="shot"><img src="../captures/calendrier.webp" alt=""></div><p class="cap">Calendrier</p></div>
+    <div><div class="shot"><img src="../captures/tableau-de-bord-sombre.webp" alt=""></div><p class="cap">Mode sombre</p></div>
+  </div>
+  <div class="foot"><span>Iqra compta — charte de marque</span><span>7 / 8</span></div>
+</section>
+
+<section class="board">
+  <p class="eyebrow">07 · Mouvement et ton</p>
+  <h1>Fluide, discret, jamais gratuit</h1>
+  <div class="grid" style="grid-template-columns: 1fr 1fr">
+    <div class="card" style="display:flex;flex-direction:column;gap:14px">
+      <h2>Le mouvement</h2>
+      <p style="font-size:16px;line-height:1.6;color:var(--muted)">Une seule courbe douce, des durées courtes. Les cartes montent en cascade à l’arrivée, les montants se comptent, la pastille du menu glisse, les lignes se replient au lieu de disparaître d’un coup. Seules l’opacité et la position bougent.</p>
+      <p class="curve">cubic-bezier(0.22, 1, 0.36, 1)</p>
+      <div class="row"><span class="badge" style="background:var(--primary-soft);color:var(--primary)">150 ms · survol</span><span class="badge" style="background:var(--primary-soft);color:var(--primary)">220–350 ms · fenêtres, lignes</span><span class="badge" style="background:var(--primary-soft);color:var(--primary)">520 ms · entrée de page</span></div>
+      <p style="font-size:15px;color:var(--muted)">Si l’appareil demande « moins de mouvement », tout s’affiche sans animation.</p>
+    </div>
+    <div class="card" style="display:flex;flex-direction:column;gap:14px">
+      <h2>Le ton</h2>
+      <p style="font-size:16px;line-height:1.6;color:var(--muted)">Français uniquement, vouvoiement, phrases courtes. On dit ce qui se passe et ce qu’il faut faire, sans jargon technique.</p>
+      <div class="do"><b>Oui</b>« Encaissement enregistré. Le reçu n° 2026-0007 a été créé. »</div>
+      <div class="dont"><b>Non</b>« Transaction 201 OK — receipt generated. »</div>
+    </div>
+  </div>
+  <div class="foot"><span>Iqra compta — charte de marque</span><span>8 / 8</span></div>
+</section>
+</body>
+</html>

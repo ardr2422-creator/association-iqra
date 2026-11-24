@@ -24,8 +24,13 @@ export function cronSecret(): string | null {
   return secret && secret.length >= 16 ? secret : null;
 }
 
+/** Clé d'envoi Resend (nom `RESEND_API_KEY`, ou `RESEND_KEY` accepté aussi). */
+function resendApiKey(): string | null {
+  return process.env.RESEND_API_KEY?.trim() || process.env.RESEND_KEY?.trim() || null;
+}
+
 export function remindersConfigured(): boolean {
-  return Boolean(cronSecret() && process.env.RESEND_API_KEY?.trim());
+  return Boolean(cronSecret() && resendApiKey());
 }
 
 export type ReminderLine = {
@@ -138,7 +143,7 @@ export function buildReminderEmail(digest: ReminderDigest): { subject: string; t
 
 /** Envoie le rappel par Resend. Renvoie `false` si l'envoi a échoué (le motif est journalisé). */
 export async function sendReminderEmail(recipient: string, digest: ReminderDigest): Promise<boolean> {
-  const apiKey = process.env.RESEND_API_KEY?.trim();
+  const apiKey = resendApiKey();
   if (!apiKey) return false;
   const { subject, text, html } = buildReminderEmail(digest);
 
